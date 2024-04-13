@@ -18,7 +18,7 @@ A minimalistic, plain text-based blog engine written in PHP. It's designed to di
    git clone https://github.com/coignard/weblog.git
    ```
 2. **Place Your Posts**
-   Save your blog posts as `.txt` files in the `weblog` directory.
+   Save your blog posts as `.txt` files in the `weblog/custom-category-name/` directory.
 3. **Configure**
    Open `config.yml` and adjust the settings to match your preferences.
 
