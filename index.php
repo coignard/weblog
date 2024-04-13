@@ -206,7 +206,11 @@ class Weblog {
      * @param SplFileInfo $file The file information object for the post.
      */
     private static function renderPost($file) {
-        $category = ucfirst(basename(dirname($file->getPathname())));
+        $relativePath = str_replace(self::$config['weblog_dir'], '', $file->getPathname());
+
+        $pathParts = explode('/', trim($relativePath, '/'));
+        $category = (count($pathParts) > 1) ? ucfirst($pathParts[0]) : "Misc";
+
         $title = basename($file->getFilename(), '.txt');
         $date = date("d F Y", $file->getMTime());
 
