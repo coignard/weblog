@@ -47,7 +47,11 @@ class Weblog {
             self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
-                if (rand(1, 10) != 1) {
+                if ($_GET['go'] === 'sitemap.xml') {
+                    header('Content-Type: application/xml; charset=utf-8');
+                    echo self::renderSitemap();
+                    exit;
+                } else if (rand(1, 10) != 1) {
                     echo "404 Not Found\n";
                 } else {
                     echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
@@ -80,6 +84,7 @@ class Weblog {
         self::$config['line_width'] = self::$config['line_width'] ?? self::DEFAULT_LINE_WIDTH;
         self::$config['prefix_length'] = self::$config['prefix_length'] ?? self::DEFAULT_PREFIX_LENGTH;
         self::$config['weblog_dir'] = self::$config['weblog_dir'] ?? self::DEFAULT_WEBLOG_DIR;
+        self::$config['domain'] = rtrim(self::$config['domain'] ?? 'https://renecoignard.com', '/');
     }
 
     /**
@@ -277,6 +282,65 @@ class Weblog {
 
         echo self::centerText($copyrightText);
         echo "\n\n";
+    }
+
+    /**
+     * Renders the sitemap in XML format, listing all blog posts, including the main page.
+     * Sorts posts from newest to oldest.
+     * @return string The XML content of the sitemap.
+     */
+    private static function renderSitemap() {
+        $weblogDir = self::$config['weblog_dir'];
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS));
+        $files = iterator_to_array($iterator);
+
+        usort($files, function($a, $b) {
+            return $b->getMTime() - $a->getMTime();
+        });
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
+
+        $urlset = $dom->createElement('urlset');
+        $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+        $dom->appendChild($urlset);
+
+        $mainUrl = $dom->createElement('url');
+        $mainLoc = $dom->createElement('loc', self::$config['domain'] . '/');
+        $mainUrl->appendChild($mainLoc);
+
+        $lastmodDate = $files ? date('Y-m-d', $files[0]->getMTime()) : date('Y-m-d');
+        $mainLastmod = $dom->createElement('lastmod', $lastmodDate);
+        $mainUrl->appendChild($mainLastmod);
+
+        $mainPriority = $dom->createElement('priority', '1.0');
+        $mainUrl->appendChild($mainPriority);
+
+        $mainChangefreq = $dom->createElement('changefreq', 'always');
+        $mainUrl->appendChild($mainChangefreq);
+
+        $urlset->appendChild($mainUrl);
+
+        foreach ($files as $file) {
+            if ($file->isFile() && $file->getExtension() === 'txt') {
+                $url = $dom->createElement('url');
+                $loc = $dom->createElement('loc', self::$config['domain'] . '/' . self::slugify(basename($file->getFilename(), '.txt')) . '/');
+                $url->appendChild($loc);
+
+                $lastmod = $dom->createElement('lastmod', date('Y-m-d', $file->getMTime()));
+                $url->appendChild($lastmod);
+
+                $priority = $dom->createElement('priority', '1.0');
+                $url->appendChild($priority);
+
+                $changefreq = $dom->createElement('changefreq', 'always');
+                $url->appendChild($changefreq);
+
+                $urlset->appendChild($url);
+            }
+        }
+
+        return $dom->saveXML();
     }
 }
 
