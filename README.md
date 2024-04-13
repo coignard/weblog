@@ -2,7 +2,7 @@
 
 A minimalistic, plain text-based blog engine written in PHP. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
-![weblog](https://github.com/coignard/weblog/assets/119790348/c3e9b2e1-0461-42a1-9838-069104819a16)
+[![weblog](https://github.com/coignard/weblog/assets/119790348/c3e9b2e1-0461-42a1-9838-069104819a16)](https://renecoignard.com/)
 
 ## Demo
 
