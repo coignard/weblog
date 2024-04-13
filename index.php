@@ -199,8 +199,12 @@ class Weblog {
         $categoryWidth = 20;
         $dateWidth = 20;
         $titleWidth = $lineWidth - $categoryWidth - $dateWidth;
-        $titlePadding = max((int) (($titleWidth - mb_strlen($title)) / 2), 0);
 
+        if (substr($title, 0, 1) === '~') {
+            $title = '* * *';
+        }
+
+        $titlePadding = max((int) (($titleWidth - mb_strlen($title)) / 2), 0);
         $formattedTitle = sprintf("%-{$titlePadding}s%s%-{$titlePadding}s", '', $title, '');
 
         if (mb_strlen($formattedTitle) < $titleWidth) {
