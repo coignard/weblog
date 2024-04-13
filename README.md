@@ -1,8 +1,8 @@
 # Weblog
 
-A minimalistic, plain text-based blog engine written in PHP. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
+A minimalistic, plain text-based blog engine written in PHP, inspired by the simplicity and structure of RFC format. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
-[![weblog](https://github.com/coignard/weblog/assets/119790348/c3e9b2e1-0461-42a1-9838-069104819a16)](https://renecoignard.com/)
+[![Weblog](https://github.com/coignard/weblog/assets/119790348/e6abdedf-dfd0-4850-8dcb-f3576681b5f5)](https://renecoignard.com/)
 
 ## Demo
 
