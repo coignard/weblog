@@ -51,7 +51,7 @@ server {
 }
 ```
 
-Replace `example.com` with your actual domain..
+Replace `example.com` with your actual domain.
 
 ## Usage
 
