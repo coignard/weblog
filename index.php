@@ -23,7 +23,11 @@ class Weblog {
             self::renderFooter();
         } else {
             if (isset($_GET['go'])) {
-                echo "404 Not Found\n\n\n";
+                if (rand(1, 10) != 1) {
+                    echo "404 Not Found\n";
+                } else {
+                    echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
+                }
                 http_response_code(404);
             } else {
                 echo "\n\n";
