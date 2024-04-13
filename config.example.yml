@@ -1,11 +1,23 @@
+# Configuration Template for Weblog
+# Fill in your values and rename this file to config.yml
+
 # Author's full name
-author_name: René Coignard
+author_name: "Your Full Name"
 
-# About section text
-about_text: Political activist, human rights defender, and artist from Russia. Emigrated to Germany due to politically motivated persecution by the Russian government.  Previously known as Mikhail Podivilov.
+# Description about the author or the blog
+about_text: "I like trains."
 
-# Prefix length in spaces for formatting paragraphs
+# Full domain URL without trailing slash
+domain: "https://example.com"
+
+# Line width for text formatting
+line_width: 72
+
+# Prefix length for paragraph formatting
 prefix_length: 3
 
-# Copyright text
-copyright_text: contact@renecoignard.com
+# Directory where blog files are stored
+weblog_dir: "/path/to/your/weblog/directory"
+
+# Author email for footer copyright
+author_email: "example@example.com"
