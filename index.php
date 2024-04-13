@@ -26,6 +26,7 @@
 
 class Weblog {
     private static $config = [];
+    private const VERSION = '1.2.0';
     private const CONFIG_PATH = __DIR__ . '/config.yml';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -50,6 +51,10 @@ class Weblog {
                 if ($_GET['go'] === 'sitemap.xml') {
                     header('Content-Type: application/xml; charset=utf-8');
                     echo self::renderSitemap();
+                    exit;
+                } else if ($_GET['go'] === 'rss') {
+                    header('Content-Type: application/xml; charset=utf-8');
+                    echo self::generateRSS();
                     exit;
                 } else if (rand(1, 10) != 1) {
                     echo "404 Not Found\n";
@@ -187,6 +192,33 @@ class Weblog {
         }
 
         return ['min' => $minYear, 'max' => $maxYear];
+    }
+
+    /**
+     * Fetches all blog posts for the RSS feed, sorted from newest to oldest.
+     * @return array An array of posts with necessary data for the RSS feed.
+     */
+    private static function fetchAllPosts() {
+        $weblogDir = self::$config['weblog_dir'];
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS));
+        $posts = [];
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'txt') {
+                $slug = self::slugify(basename($file->getFilename(), '.txt'));
+                $posts[] = [
+                    'title' => basename($file->getFilename(), '.txt'),
+                    'slug' => $slug,
+                    'date' => $file->getMTime(),
+                    'guid' => $slug,
+                    'content' => file_get_contents($file->getPathname())
+                ];
+            }
+        }
+        usort($posts, function($a, $b) {
+            return $b['date'] - $a['date'];
+        });
+        return $posts;
     }
 
     /**
@@ -346,6 +378,49 @@ class Weblog {
         }
 
         return $dom->saveXML();
+    }
+
+    /**
+     * Generates an RSS feed for the blog.
+     * @return string The RSS feed as an XML format string.
+     */
+    private static function generateRSS() {
+        $rssTemplate = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $rssTemplate .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n";
+        $rssTemplate .= '<channel>' . "\n";
+        $rssTemplate .= '<title>' . htmlspecialchars(self::$config['author_name']) . '</title>' . "\n";
+        $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . '</link>' . "\n";
+        $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss/" rel="self" type="application/xml" />' . "\n";
+        $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
+        $rssTemplate .= '<generator>Weblog ' . self::VERSION . '</generator>' . "\n";
+
+        $posts = self::fetchAllPosts();
+        foreach ($posts as $post) {
+            $paragraphs = explode("\n", trim($post['content']));
+            $formattedContent = '';
+            $lastParagraphKey = count($paragraphs) - 1;
+
+            foreach ($paragraphs as $key => $paragraph) {
+                if (!empty($paragraph)) {
+                    $formattedContent .= '<p>' . htmlspecialchars($paragraph) . '</p>';
+                    if ($key !== $lastParagraphKey) {
+                        $formattedContent .= '<br/>';
+                    }
+                }
+            }
+
+            $rssTemplate .= '<item>' . "\n";
+            $rssTemplate .= '<title>' . htmlspecialchars($post['title']) . '</title>' . "\n";
+            $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
+            $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
+            $rssTemplate .= '<guid isPermaLink="false">' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</guid>' . "\n";
+            $rssTemplate .= '<description>' . $formattedContent . '</description>' . "\n";
+            $rssTemplate .= '</item>' . "\n";
+        }
+
+        $rssTemplate .= '</channel>' . "\n";
+        $rssTemplate .= '</rss>' . "\n";
+        return $rssTemplate;
     }
 }
 
