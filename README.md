@@ -1,6 +1,6 @@
 # Weblog
 
-A minimalistic, file-based blog engine written in PHP. It's designed to be simple, light, and easy to set up, with no need for a database. The content is stored in plain text files, and the blog's settings are managed through a YAML configuration file.
+A minimalistic, plain text-based blog engine written in PHP. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
 ## Features
 
