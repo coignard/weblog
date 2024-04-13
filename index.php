@@ -20,7 +20,7 @@ class Weblog {
             echo "\n\n";
             self::renderPost($requestedPost);
             echo "\n\n";
-            self::renderFooter();
+            self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
                 if (rand(1, 10) != 1) {
@@ -135,6 +135,31 @@ class Weblog {
     }
 
     /**
+     * Retrieves the range of years (earliest and latest) from all blog posts.
+     * @return array Associative array with keys 'min' and 'max' indicating the minimum and maximum years.
+     */
+    private static function getPostYearsRange() {
+        $weblogDir = self::$config['weblog_dir'];
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS));
+        $minYear = PHP_INT_MAX;
+        $maxYear = 0;
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'txt') {
+                $fileYear = date("Y", $file->getMTime());
+                if ($fileYear < $minYear) {
+                    $minYear = $fileYear;
+                }
+                if ($fileYear > $maxYear) {
+                    $maxYear = $fileYear;
+                }
+            }
+        }
+
+        return ['min' => $minYear, 'max' => $maxYear];
+    }
+
+    /**
      * Converts a string to a URL-friendly slug, ensuring non-ASCII characters are appropriately replaced.
      * @param string $title The string to slugify.
      * @return string The slugified string.
@@ -202,11 +227,26 @@ class Weblog {
     }
 
     /**
-     * Renders the footer with copyright information.
+     * Renders the footer with dynamic copyright information based on the post dates or a specific year if provided.
+     * @param int|null $year The specific year for the post page, null for the main page.
      */
-    private static function renderFooter() {
-        $copyrightAuthor = self::$config['copyright_text'] ?? self::$config['author_name'];
-        $copyrightText = "Copyright (c) " . date("Y") . " " . $copyrightAuthor;
+    private static function renderFooter($year = null) {
+        $authorEmail = self::$config['author_email'] ?? self::$config['author_name'];
+
+        if ($year !== null) {
+            $copyrightText = "Copyright (c) $year $authorEmail";
+        } else {
+            $postYears = self::getPostYearsRange();
+            $earliestYear = $postYears['min'];
+            $latestYear = $postYears['max'];
+            $currentYear = date("Y");
+            if ($earliestYear === $latestYear) {
+                $copyrightText = "Copyright (c) $earliestYear $authorEmail";
+            } else {
+                $copyrightText = "Copyright (c) $earliestYear-$latestYear $authorEmail";
+            }
+        }
+
         echo self::centerText($copyrightText);
         echo "\n\n";
     }
