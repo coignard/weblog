@@ -2,6 +2,10 @@
 
 A minimalistic, plain text-based blog engine written in PHP. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
+## Demo
+
+See it in action [here](https://renecoignard.com/).
+
 ## Features
 
 - **Text Files as Posts**: Just write your blog posts as plain text files.
@@ -21,6 +25,8 @@ A minimalistic, plain text-based blog engine written in PHP. It's designed to di
    Save your blog posts as `.txt` files in the `weblog/custom-category-name/` directory.
 3. **Configure**
    Open `config.yml` and adjust the settings to match your preferences.
+
+You're all set! Happy blogging!
 
 ### Setting Up Your Web Server
 
@@ -64,5 +70,3 @@ Contributions are welcome! For major changes, please open an issue first to disc
 ## License
 
 This project is open-sourced under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-Thank you for considering Weblog for your blogging needs. Happy blogging!
