@@ -144,11 +144,12 @@ class Weblog {
     }
 
     /**
-     * Retrieves the requested post based on the GET parameter, converting the title to a slug.
+     * Retrieves the requested post based on the GET parameter, converting the title to a slug and handling .txt extension.
      * @return SplFileInfo|null The file info of the requested post or null if not found.
      */
     private static function getRequestedPost() {
         $postSlug = $_GET['go'] ?? '';
+        $postSlug = preg_replace('/\.txt$/', '', $postSlug);
         $weblogDir = self::$config['weblog_dir'];
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS));
 
