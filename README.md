@@ -59,6 +59,9 @@ server {
         rewrite ^/(.+)\.txt/$ $scheme://$host/$1.txt permanent;
         rewrite ^/(.+)\.txt$ /index.php?go=$1 last;
         rewrite ^/([^/]+)$ $scheme://$host/$1/ permanent;
+        rewrite "^/(\d{4})$" /$1/ permanent;
+        rewrite "^/(\d{4})/(\d{2})$" /$1/$2/ permanent;
+        rewrite "^/(\d{4})/(\d{2})/(\d{2})$" /$1/$2/$3/ permanent;
         rewrite ^/(.*)/$ /index.php?go=$1 last;
     }
 
