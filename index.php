@@ -82,7 +82,7 @@ class Weblog {
         self::$config['line_width'] ??= self::DEFAULT_LINE_WIDTH;
         self::$config['prefix_length'] ??= self::DEFAULT_PREFIX_LENGTH;
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
-        self::$config['domain'] = rtrim(self::$config['domain'] ?? 'https://renecoignard.com', '/');
+        self::$config['domain'] = rtrim(self::$config['domain'] ?? 'http://localhost', '/');
     }
 
     /**
