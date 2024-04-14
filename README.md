@@ -6,7 +6,7 @@ A minimalistic, plain text-based blog engine written in PHP, inspired by the sim
 
 ## Demo
 
-See it in action [here](https://renecoignard.com/).
+See it in action [here](https://renecoignard.com/weblog/).
 
 ## Features
 
