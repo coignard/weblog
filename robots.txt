@@ -15,5 +15,12 @@
 #         )  |  \  `.___________|/
 #         `--'   `--'
 User-agent: *
+Disallow: /proof-of-identity/
 
-Sitemap: https://example.com/sitemap.xml
+Disallow: /harming/humans
+Disallow: /ignoring/human/orders
+Disallow: /harm/to/self
+
+Allow: /
+
+Sitemap: https://renecoignard.com/sitemap.xml
