@@ -57,8 +57,8 @@ server {
 
     error_page 404 = /index.php?go=404;
 
-    location / {
-        try_files $uri $uri/ @rewrite;
+    location /sitemap.xml {
+        rewrite ^/sitemap.xml$ /index.php?go=sitemap.xml last;
     }
 
     location ~* ^/config\.ini$ {
@@ -71,8 +71,8 @@ server {
         return 404;
     }
 
-    location = /sitemap.xml {
-        try_files $uri /index.php?go=sitemap.xml;
+    location / {
+        try_files $uri $uri/ @rewrite;
     }
 
     location @rewrite {
