@@ -33,7 +33,7 @@ class Weblog {
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
 
     /**
-     * Main function to run the «Weblog».
+     * Main function to run the Weblog.
      */
     public static function run() {
         self::loadConfig();
