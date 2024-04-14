@@ -476,6 +476,10 @@ class Weblog {
 
         $posts = self::fetchAllPosts();
         foreach ($posts as $post) {
+            $title = $post['title'];
+            if (substr($title, 0, 1) === '~') {
+                $title = '* * *';
+            }
             $paragraphs = explode("\n", trim($post['content']));
             $formattedContent = '';
             $lastParagraphKey = count($paragraphs) - 1;
@@ -490,7 +494,7 @@ class Weblog {
             }
 
             $rssTemplate .= '<item>' . "\n";
-            $rssTemplate .= '<title>' . htmlspecialchars($post['title']) . '</title>' . "\n";
+            $rssTemplate .= '<title>' . htmlspecialchars($title) . '</title>' . "\n";
             $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
             $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
             $rssTemplate .= '<guid isPermaLink="false">' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</guid>' . "\n";
