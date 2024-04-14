@@ -48,28 +48,25 @@ class Weblog {
             self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
-                if ($_GET['go'] === 'sitemap.xml') {
+                $go = $_GET['go'];
+                if ($go === 'sitemap.xml') {
                     header('Content-Type: application/xml; charset=utf-8');
                     echo self::renderSitemap();
                     exit;
-                } else if ($_GET['go'] === 'rss') {
+                } else if ($go === 'rss') {
                     header('Content-Type: application/xml; charset=utf-8');
                     echo self::generateRSS();
                     exit;
-                } else if (rand(1, 10) != 1) {
-                    echo "404 Not Found\n";
-                } else {
-                    echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
+                } else if (preg_match('#^\d{4}(?:/\d{2}(?:/\d{2})?)?/?$#', $go)) {
+                    self::renderPostsByDate($go);
+                    exit;
+                } else if (self::renderPostsByCategory($go)) {
+                    exit;
                 }
-                http_response_code(404);
+                self::handleNotFound();
+                exit;
             } else {
-                echo "\n\n";
-                echo self::centerText(self::$config['author_name']) . "\n";
-                echo "\nAbout\n\n";
-                echo self::formatParagraph(self::$config['about_text']);
-                echo "\n\n\n";
-                self::renderAllPosts();
-                self::renderFooter();
+                self::renderHome();
             }
         }
     }
@@ -204,7 +201,8 @@ class Weblog {
                     'slug' => $slug,
                     'date' => $file->getMTime(),
                     'guid' => $slug,
-                    'content' => file_get_contents($file->getPathname())
+                    'content' => file_get_contents($file->getPathname()),
+                    'path' => $file->getPathname()
                 ];
             }
         }
@@ -247,6 +245,94 @@ class Weblog {
     }
 
     /**
+     * Renders posts filtered by date.
+     * @param string $datePath Date path from URL in format yyyy/mm/dd.
+     */
+    private static function renderPostsByDate($datePath) {
+        $dateComponents = explode('/', trim($datePath, '/'));
+        $year = $dateComponents[0] ?? null;
+        $month = $dateComponents[1] ?? null;
+        $day = $dateComponents[2] ?? null;
+
+        if (!$year) {
+            self::handleNotFound();
+            return;
+        }
+
+        $posts = self::fetchAllPosts();
+        $filteredPosts = array_filter($posts, function($post) use ($year, $month, $day) {
+            $postDate = getdate($post['date']);
+            if ($postDate['year'] != $year) return false;
+            if ($month && $postDate['mon'] != intval($month)) return false;
+            if ($day && $postDate['mday'] != intval($day)) return false;
+            return true;
+        });
+
+        if (empty($filteredPosts)) {
+            self::handleNotFound();
+            return;
+        }
+
+        foreach ($filteredPosts as $post) {
+            echo "\n\n";
+            self::renderPost(new SplFileInfo($post['path']));
+        }
+
+        echo "\n\n";
+        self::renderFooter($year);
+    }
+
+    /**
+     * Renders posts filtered by category.
+     * @param string $category Category name from URL.
+     * @return bool Returns true if posts are found and rendered, false otherwise.
+     */
+    private static function renderPostsByCategory($category) {
+        $weblogDir = self::$config['weblog_dir'];
+        $categoryPath = $weblogDir . '/' . $category;
+
+        if (!is_dir($categoryPath)) {
+            self::handleNotFound();
+            exit;
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($categoryPath, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        $minYear = PHP_INT_MAX;
+        $maxYear = 0;
+
+        $posts = [];
+        foreach ($files as $file) {
+            if ($file->isFile() && $file->getExtension() === 'txt') {
+                $year = date("Y", $file->getMTime());
+                $minYear = min($minYear, $year);
+                $maxYear = max($maxYear, $year);
+                $posts[] = $file;
+            }
+        }
+
+        if (empty($posts)) {
+            self::handleNotFound();
+            exit;
+        }
+
+        usort($posts, function($a, $b) {
+            return $b->getMTime() - $a->getMTime();
+        });
+
+        foreach ($posts as $post) {
+            echo "\n\n";
+            self::renderPost($post);
+        }
+
+        echo "\n\n";
+        self::renderFooter($minYear == $maxYear ? $minYear : "{$minYear}-{$maxYear}");
+        return true;
+    }
+
+    /**
      * Formats the header of a blog post, including category, title, and publication date.
      * @param string $category The category of the post.
      * @param string $title The title of the post.
@@ -283,7 +369,8 @@ class Weblog {
         $formattedContent = '';
 
         foreach ($paragraphs as $paragraph) {
-            $formattedContent .= self::formatParagraph($paragraph) . "\n";
+            $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+            $formattedContent .= self::formatParagraph($formattedParagraph) . "\n";
         }
 
         return $formattedContent;
@@ -414,6 +501,31 @@ class Weblog {
         $rssTemplate .= '</channel>' . "\n";
         $rssTemplate .= '</rss>' . "\n";
         return $rssTemplate;
+    }
+
+    /**
+     * Handles the "Not Found" response with a randomized easter egg.
+     */
+    private static function handleNotFound() {
+        if (rand(1, 10) != 1) {
+            echo "404 Not Found\n";
+        } else {
+            echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
+        }
+        http_response_code(404);
+    }
+
+    /**
+     * Renders the home page.
+     */
+    private static function renderHome() {
+        echo "\n\n";
+        echo self::centerText(self::$config['author_name']) . "\n";
+        echo "\nAbout\n\n";
+        echo self::formatParagraph(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
+        echo "\n\n\n";
+        self::renderAllPosts();
+        self::renderFooter();
     }
 }
 
