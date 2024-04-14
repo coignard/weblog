@@ -433,7 +433,7 @@ class Weblog {
         $mainPriority = $dom->createElement('priority', '1.0');
         $mainUrl->appendChild($mainPriority);
 
-        $mainChangefreq = $dom->createElement('changefreq', 'always');
+        $mainChangefreq = $dom->createElement('changefreq', 'daily');
         $mainUrl->appendChild($mainChangefreq);
 
         $urlset->appendChild($mainUrl);
@@ -450,7 +450,7 @@ class Weblog {
                 $priority = $dom->createElement('priority', '1.0');
                 $url->appendChild($priority);
 
-                $changefreq = $dom->createElement('changefreq', 'always');
+                $changefreq = $dom->createElement('changefreq', 'weekly');
                 $url->appendChild($changefreq);
 
                 $urlset->appendChild($url);
