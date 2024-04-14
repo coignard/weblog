@@ -45,14 +45,34 @@ Here is a basic nginx configuration:
 ```nginx
 server {
     listen 80;
-    server_name example.com;
 
     root /var/www/weblog;
     index index.php;
     charset utf-8;
 
+    server_name example.com;
+
+    location = /favicon.ico { log_not_found off; access_log off; expires max; }
+    location = /robots.txt { log_not_found off; access_log off; allow all; }
+
+    error_page 404 = /index.php?go=404;
+
     location / {
         try_files $uri $uri/ @rewrite;
+    }
+
+    location ~* ^/config\.ini$ {
+        deny all;
+        return 404;
+    }
+
+    location ~* ^/weblog/.+ {
+        deny all;
+        return 404;
+    }
+
+    location = /sitemap.xml {
+        try_files $uri /index.php?go=sitemap.xml;
     }
 
     location @rewrite {
@@ -68,10 +88,6 @@ server {
     location ~ \.php$ {
         include fastcgi-php.conf;
         fastcgi_pass php-fpm;
-    }
-
-    location ~* \.ini$ {
-        deny all;
     }
 }
 ```
