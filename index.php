@@ -27,7 +27,7 @@
 class Weblog {
     private static $config = [];
     private const VERSION = '1.2.0';
-    private const CONFIG_PATH = __DIR__ . '/config.yml';
+    private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
@@ -78,17 +78,10 @@ class Weblog {
      * Loads configuration from a YAML file. Parses the file line-by-line and populates the config array.
      */
     private static function loadConfig() {
-        $configContent = file_get_contents(self::CONFIG_PATH);
-        $lines = explode("\n", $configContent);
-        foreach ($lines as $line) {
-            if (trim($line) && $line[0] !== '#' && strpos($line, ':') !== false) {
-                list($key, $value) = explode(':', $line, 2);
-                self::$config[trim($key)] = trim($value);
-            }
-        }
-        self::$config['line_width'] = self::$config['line_width'] ?? self::DEFAULT_LINE_WIDTH;
-        self::$config['prefix_length'] = self::$config['prefix_length'] ?? self::DEFAULT_PREFIX_LENGTH;
-        self::$config['weblog_dir'] = self::$config['weblog_dir'] ?? self::DEFAULT_WEBLOG_DIR;
+        self::$config = parse_ini_file(self::CONFIG_PATH);
+        self::$config['line_width'] ??= self::DEFAULT_LINE_WIDTH;
+        self::$config['prefix_length'] ??= self::DEFAULT_PREFIX_LENGTH;
+        self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
         self::$config['domain'] = rtrim(self::$config['domain'] ?? 'https://renecoignard.com', '/');
     }
 
