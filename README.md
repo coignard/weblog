@@ -10,10 +10,9 @@ See it in action [here](https://renecoignard.com/).
 
 ## Features
 
-- **Text Files as Posts**: Just write your blog posts as plain text files.
-- **Simple Configuration**: Manage settings with an easy-to-edit YAML config file.
-- **No Database Needed**: No need to set up a database, as all data is stored in files.
-- **Customizable Display**: Adjust text width and other display settings through the configuration.
+- **Text Files as Posts**: Write your blog posts as plain text files.
+- **Simple Configuration**: Manage settings through a simple `config.ini` file.
+- **No Database Needed**: All data is stored in text files, whoa!
 
 ## Getting Started
 
@@ -23,16 +22,25 @@ See it in action [here](https://renecoignard.com/).
    ```bash
    git clone https://github.com/coignard/weblog.git
    ```
-2. **Place Your Posts**
-   Save your blog posts as `.txt` files in the `weblog/custom-category-name/` directory.
-3. **Configure**
-   Open `config.yml` and adjust the settings to match your preferences.
+2. **Configure**
+   Open `config.ini` and adjust the settings as needed (see Configuration section below).
+3. **Deploy Posts**
+   Save your blog posts as `.txt` files in the `weblog/your-category-name/` directory.
 
-You're all set! Happy blogging!
+It's that easy! Happy blogging!
 
-### Setting Up Your Web Server
+### Configuration
 
-If you're using **nginx**, here's a basic setup you can start with. This configuration assumes Weblog is installed in `/var/www/weblog`.
+Edit the `config.ini` file in the root directory to setup your weblog:
+
+- `line_width`: Maximum line width for content rendering (default: 72).
+- `prefix_length`: Length of prefix used in formatted text output (default: 3).
+- `weblog_dir`: Directory path where blog posts are stored (default: `/weblog/`).
+- `domain`: The domain name where your blog is hosted (default: `http://localhost`).
+
+### Web Server Setup
+
+Here is a basic nginx configuration:
 
 ```nginx
 server {
@@ -48,6 +56,8 @@ server {
     }
 
     location @rewrite {
+        rewrite ^/(.+)\.txt/$ $scheme://$host/$1.txt permanent;
+        rewrite ^/(.+)\.txt$ /index.php?go=$1 last;
         rewrite ^/([^/]+)$ $scheme://$host/$1/ permanent;
         rewrite ^/(.*)/$ /index.php?go=$1 last;
     }
@@ -56,14 +66,19 @@ server {
         include fastcgi-php.conf;
         fastcgi_pass php-fpm;
     }
+
+    location ~* \.ini$ {
+        deny all;
+    }
 }
 ```
 
-Replace `example.com` with your actual domain.
+### Usage
 
-## Usage
-
-Navigate to your blog's URL. The homepage will display a list of all posts. Access individual posts by appending `/your-post-slug/` to the URL.
+- Navigate to your blog's URL to see a list of all posts.
+- Access individual posts by appending `/your-post-name/` to the URL.
+- Access posts from a specific date by `/YYYY/MM/DD/`.
+- View all posts under a category by `/your-category-name/`.
 
 ## Contributing
 
