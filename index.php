@@ -31,6 +31,7 @@ class Weblog {
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
+    private const DEFAULT_SHOW_POWERED_BY = 'On';
 
     /**
      * Main function to run the Weblog.
@@ -83,6 +84,7 @@ class Weblog {
         self::$config['prefix_length'] ??= self::DEFAULT_PREFIX_LENGTH;
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
         self::$config['domain'] = rtrim(self::$config['domain'] ?? 'http://localhost', '/');
+        self::$config['show_powered_by'] ??= self::DEFAULT_SHOW_POWERED_BY;
     }
 
     /**
@@ -427,6 +429,14 @@ class Weblog {
         }
 
         echo self::centerText($copyrightText);
+
+        if (self::$config['show_powered_by'] === 'On') {
+            echo "\n\n";
+
+            $poweredByText = "Powered by Weblog v" . self::VERSION;
+            echo self::centerText($poweredByText);
+        }
+
         echo "\n\n";
     }
 
