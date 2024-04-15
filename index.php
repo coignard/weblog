@@ -57,6 +57,9 @@ class Weblog {
                     header('Content-Type: application/xml; charset=utf-8');
                     echo self::generateRSS();
                     exit;
+                } else if ($go === 'random') {
+                    self::renderRandomPost();
+                    exit;
                 } else if (preg_match('#^\d{4}(?:/\d{2}(?:/\d{2})?)?/?$#', $go)) {
                     self::renderPostsByDate($go);
                     exit;
@@ -336,6 +339,26 @@ class Weblog {
         echo "\n\n";
         self::renderFooter($minYear == $maxYear ? $minYear : "{$minYear}-{$maxYear}");
         return true;
+    }
+
+    /**
+     * Renders a random post from all available posts.
+     */
+    private static function renderRandomPost() {
+        $posts = self::fetchAllPosts();
+        if (empty($posts)) {
+            self::handleNotFound();
+            exit;
+        }
+
+        $randomIndex = array_rand($posts);
+        $randomPost = $posts[$randomIndex];
+        $randomPostFile = new SplFileInfo($randomPost['path']);
+
+        echo "\n\n";
+        self::renderPost($randomPostFile);
+        echo "\n\n";
+        self::renderFooter(date("Y", $randomPost['date']));
     }
 
     /**
