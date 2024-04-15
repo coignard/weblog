@@ -26,12 +26,13 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.3.2';
+    private const VERSION = '1.4.0';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
     private const DEFAULT_SHOW_POWERED_BY = 'On';
+    private const DEFAULT_SHOW_URLS = 'Off';
 
     /**
      * Main function to run the Weblog.
@@ -85,6 +86,7 @@ class Weblog {
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
         self::$config['domain'] = rtrim(self::$config['domain'] ?? 'http://localhost', '/');
         self::$config['show_powered_by'] ??= self::DEFAULT_SHOW_POWERED_BY;
+        self::$config['show_urls'] ??= self::DEFAULT_SHOW_URLS;
     }
 
     /**
@@ -137,7 +139,7 @@ class Weblog {
 
         foreach ($files as $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
-                self::renderPost($file);
+                self::renderPost($file, true);
                 echo "\n\n";
             }
         }
@@ -230,10 +232,11 @@ class Weblog {
     }
 
     /**
-     * Renders a single post, including its header and content.
+     * Renders a single post, including its header, content, and optionally a URL.
      * @param SplFileInfo $file The file information object for the post.
+     * @param bool $isMainPage Indicates if rendering is happening on the main page.
      */
-    private static function renderPost($file) {
+    private static function renderPost($file, $isMainPage = false) {
         $relativePath = str_replace(self::$config['weblog_dir'], '', $file->getPathname());
 
         $pathParts = explode('/', trim($relativePath, '/'));
@@ -247,6 +250,12 @@ class Weblog {
 
         $content = file_get_contents($file->getPathname());
         echo self::formatPostContent($content);
+
+        if ($isMainPage && self::$config['show_urls'] !== 'Off') {
+            $slug = self::slugify(basename($file->getFilename(), '.txt'));
+            $url = self::$config['show_urls'] === 'Full' ? self::$config['domain'] . '/' . $slug . '/' : '/' . $slug . '/';
+            echo "\n" . $url . "\n";
+        }
     }
 
     /**
