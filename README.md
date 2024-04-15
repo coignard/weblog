@@ -33,10 +33,15 @@ It's that easy! Happy blogging!
 
 Edit the `config.ini` file in the root directory to setup your weblog:
 
-- `line_width`: Maximum line width for content rendering (default: 72).
-- `prefix_length`: Length of prefix used in formatted text output (default: 3).
-- `weblog_dir`: Directory path where blog posts are stored (default: `/weblog/`).
-- `domain`: The domain name where your blog is hosted (default: `http://localhost`).
+- `line_width`: Maximum line width for content rendering (default: 72). This controls how text is wrapped in the output.
+- `prefix_length`: Length of the prefix used in formatted text output (default: 3). This is used to indent the text content slightly from the left margin.
+- `weblog_dir`: Directory path where blog posts are stored (default: `/weblog/`). This specifies where your text files (representing blog posts) are located.
+- `domain`: The domain name where your blog is hosted (default: `http://localhost`). This is used for generating full URLs in the sitemap and RSS feed, as well as for link generation if `show_urls` is set to `Full`.
+- `show_powered_by`: Toggle to show or hide the "Powered by Weblog" information in the footer (default: `On`). Set this to `Off` to remove the footer credit.
+- `show_urls`: Determines how URLs are displayed on the main page when listing posts (default: `Off`). Options are:
+  - `Off`: Do not show any URLs next to the posts.
+  - `Short`: Display only the relative path of the post.
+  - `Full`: Display the full URL, including the domain, for each post.
 
 ### Web Server Setup
 
