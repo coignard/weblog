@@ -119,7 +119,7 @@ class Weblog {
     }
 
     /**
-     * Renders all blog posts sorted by modification date in descending order.
+     * Renders all posts sorted by modification date in descending order.
      */
     private static function renderAllPosts() {
         $weblogDir = self::$config['weblog_dir'];
@@ -160,7 +160,7 @@ class Weblog {
     }
 
     /**
-     * Retrieves the range of years (earliest and latest) from all blog posts.
+     * Retrieves the range of years (earliest and latest) from all posts.
      * @return array Associative array with keys 'min' and 'max' indicating the minimum and maximum years.
      */
     private static function getPostYearsRange() {
@@ -185,7 +185,7 @@ class Weblog {
     }
 
     /**
-     * Fetches all blog posts for the RSS feed, sorted from newest to oldest.
+     * Fetches all posts for the RSS feed, sorted from newest to oldest.
      * @return array An array of posts with necessary data for the RSS feed.
      */
     private static function fetchAllPosts() {
@@ -225,7 +225,7 @@ class Weblog {
     }
 
     /**
-     * Renders a single blog post, including its header and content.
+     * Renders a single post, including its header and content.
      * @param SplFileInfo $file The file information object for the post.
      */
     private static function renderPost($file) {
@@ -333,7 +333,7 @@ class Weblog {
     }
 
     /**
-     * Formats the header of a blog post, including category, title, and publication date.
+     * Formats the header of a post, including category, title, and publication date.
      * @param string $category The category of the post.
      * @param string $title The title of the post.
      * @param string $date The publication date of the post.
@@ -360,7 +360,7 @@ class Weblog {
     }
 
     /**
-     * Formats the content of a blog post into paragraphs.
+     * Formats the content of a post into paragraphs.
      * @param string $content The raw content of the post.
      * @return string The formatted content.
      */
@@ -402,7 +402,7 @@ class Weblog {
     }
 
     /**
-     * Renders the sitemap in XML format, listing all blog posts, including the main page.
+     * Renders the sitemap in XML format, listing all posts, including the main page.
      * Sorts posts from newest to oldest.
      * @return string The XML content of the sitemap.
      */
@@ -461,7 +461,7 @@ class Weblog {
     }
 
     /**
-     * Generates an RSS feed for the blog.
+     * Generates an RSS feed for the weblog.
      * @return string The RSS feed as an XML format string.
      */
     private static function generateRSS() {
@@ -472,6 +472,7 @@ class Weblog {
         $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . '</link>' . "\n";
         $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss/" rel="self" type="application/xml" />' . "\n";
         $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
+        $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
         $rssTemplate .= '<generator>Weblog ' . self::VERSION . '</generator>' . "\n";
 
         $posts = self::fetchAllPosts();
@@ -486,10 +487,7 @@ class Weblog {
 
             foreach ($paragraphs as $key => $paragraph) {
                 if (!empty($paragraph)) {
-                    $formattedContent .= '<p>' . htmlspecialchars($paragraph) . '</p>';
-                    if ($key !== $lastParagraphKey) {
-                        $formattedContent .= '<br/>';
-                    }
+                    $formattedContent .= '&lt;p&gt;' . htmlspecialchars($paragraph) . '&lt;/p&gt;';
                 }
             }
 
