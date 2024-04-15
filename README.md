@@ -1,4 +1,4 @@
-# Weblog
+# <img src="icon.png" width="24" height="24"> Weblog
 
 A minimalistic, plain text-based blog engine written in PHP, inspired by the simplicity and structure of RFC format. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
