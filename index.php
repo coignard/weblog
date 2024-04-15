@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.4.0';
+    private const VERSION = '1.4.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -227,7 +227,8 @@ class Weblog {
     private static function slugify($title) {
         $title = mb_strtolower($title);
         $title = iconv('UTF-8', 'ASCII//TRANSLIT', $title);
-        $title = preg_replace('/[^a-z0-9]+/', '-', $title);
+        $title = preg_replace('/[^a-z0-9\s-]/', '', $title);
+        $title = preg_replace('/\s+/', '-', $title);
         return trim($title, '-');
     }
 
