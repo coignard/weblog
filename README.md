@@ -1,8 +1,8 @@
-# <img src="icon.png" width="24" height="24"> Weblog
+# <img src=".github/icon.png" width="24" height="24"> Weblog
 
 A minimalistic, plain text-based blog engine written in PHP, inspired by the simplicity and structure of RFC format. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
-[![Weblog](https://github.com/coignard/weblog/assets/119790348/1cb649a0-ecd1-4160-838e-b0026c4a0ac9)](https://renecoignard.com/weblog/)
+[![Weblog](https://github.com/coignard/weblog/assets/119790348/81488585-0ded-471a-a296-20f2bd992a2d)](https://renecoignard.com/weblog/)
 
 ## Demo
 
