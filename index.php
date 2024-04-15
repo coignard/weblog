@@ -289,7 +289,7 @@ class Weblog {
      */
     private static function renderPostsByCategory($category) {
         $weblogDir = self::$config['weblog_dir'];
-        $categoryPath = $weblogDir . '/' . $category;
+        $categoryPath = $weblogDir . ($category !== 'misc' ? '/' . $category : '');
 
         if (!is_dir($categoryPath)) {
             self::handleNotFound();
@@ -297,7 +297,7 @@ class Weblog {
         }
 
         $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($categoryPath, RecursiveDirectoryIterator::SKIP_DOTS)
+            new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         $minYear = PHP_INT_MAX;
@@ -306,10 +306,16 @@ class Weblog {
         $posts = [];
         foreach ($files as $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
-                $year = date("Y", $file->getMTime());
-                $minYear = min($minYear, $year);
-                $maxYear = max($maxYear, $year);
-                $posts[] = $file;
+                $filePath = $file->getPathname();
+                $relativePath = str_replace($weblogDir, '', $filePath);
+                $firstDir = trim(strstr($relativePath, '/', true), '/');
+
+                if (($category === 'misc' && (empty($firstDir) || $firstDir === 'misc')) || $firstDir === $category) {
+                    $posts[] = $file;
+                    $year = date("Y", $file->getMTime());
+                    $minYear = min($minYear, $year);
+                    $maxYear = max($maxYear, $year);
+                }
             }
         }
 
@@ -476,6 +482,11 @@ class Weblog {
         $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
 
         $posts = self::fetchAllPosts();
+        if (!empty($posts)) {
+            $lastBuildDate = date(DATE_RSS, $posts[0]['date']);
+            $rssTemplate .= '<lastBuildDate>' . $lastBuildDate . '</lastBuildDate>' . "\n";
+        }
+
         foreach ($posts as $post) {
             $title = $post['title'];
             if (substr($title, 0, 1) === '~') {
