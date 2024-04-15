@@ -473,7 +473,7 @@ class Weblog {
         $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss/" rel="self" type="application/xml" />' . "\n";
         $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
         $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
-        $rssTemplate .= '<generator>Weblog ' . self::VERSION . '</generator>' . "\n";
+        $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
 
         $posts = self::fetchAllPosts();
         foreach ($posts as $post) {
