@@ -461,7 +461,7 @@ class Weblog {
     }
 
     /**
-     * Generates an RSS feed for the weblog.
+     * Generates an RSS feed for the Weblog.
      * @return string The RSS feed as an XML format string.
      */
     private static function generateRSS() {
