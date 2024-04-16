@@ -26,13 +26,13 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.4.1';
+    private const VERSION = '1.4.2';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
-    private const DEFAULT_SHOW_POWERED_BY = 'On';
-    private const DEFAULT_SHOW_URLS = 'Off';
+    private const DEFAULT_SHOW_POWERED_BY = true;
+    private const DEFAULT_SHOW_URLS = false;
 
     /**
      * Main function to run the Weblog.
@@ -46,7 +46,7 @@ class Weblog {
         if ($requestedPost) {
             echo "\n\n";
             self::renderPost($requestedPost);
-            echo "\n\n";
+            echo "\n\n\n";
             self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
@@ -77,7 +77,7 @@ class Weblog {
     }
 
     /**
-     * Loads configuration from a YAML file. Parses the file line-by-line and populates the config array.
+     * Loads configuration from config.ini file. Parses the file line-by-line and populates the config array.
      */
     private static function loadConfig() {
         self::$config = parse_ini_file(self::CONFIG_PATH);
@@ -140,7 +140,7 @@ class Weblog {
         foreach ($files as $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
                 self::renderPost($file, true);
-                echo "\n\n";
+                echo "\n\n\n";
             }
         }
     }
@@ -252,10 +252,10 @@ class Weblog {
         $content = file_get_contents($file->getPathname());
         echo self::formatPostContent($content);
 
-        if ($isMainPage && self::$config['show_urls'] !== 'Off') {
+        if ($isMainPage && self::$config['show_urls']) {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
             $url = self::$config['show_urls'] === 'Full' ? self::$config['domain'] . '/' . $slug . '/' : '/' . $slug;
-            echo "\n   ------------------------------------------------------------------\n   " . "Share: " . $url . "\n\n";
+            echo "\n   ---\n   " . "Share: " . $url . "\n\n\n";
         }
     }
 
@@ -289,11 +289,11 @@ class Weblog {
         }
 
         foreach ($filteredPosts as $post) {
-            echo "\n\n";
+            echo "\n\n\n";
             self::renderPost(new SplFileInfo($post['path']));
         }
 
-        echo "\n\n";
+        echo "\n\n\n";
         self::renderFooter($year);
     }
 
@@ -344,11 +344,11 @@ class Weblog {
         });
 
         foreach ($posts as $post) {
-            echo "\n\n";
+            echo "\n\n\n";
             self::renderPost($post);
         }
 
-        echo "\n\n";
+        echo "\n\n\n";
         self::renderFooter($minYear == $maxYear ? $minYear : "{$minYear}-{$maxYear}");
         return true;
     }
@@ -369,7 +369,7 @@ class Weblog {
 
         echo "\n\n";
         self::renderPost($randomPostFile);
-        echo "\n\n";
+        echo "\n\n\n";
         self::renderFooter(date("Y", $randomPost['date']));
     }
 
@@ -440,7 +440,7 @@ class Weblog {
 
         echo self::centerText($copyrightText);
 
-        if (self::$config['show_powered_by'] === 'On') {
+        if (self::$config['show_powered_by']) {
             echo "\n\n";
 
             $poweredByText = "Powered by Weblog v" . self::VERSION;
@@ -579,7 +579,7 @@ class Weblog {
         echo self::centerText(self::$config['author_name']) . "\n";
         echo "\nAbout\n\n";
         echo self::formatParagraph(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
-        echo "\n\n\n";
+        echo "\n\n\n\n";
         self::renderAllPosts();
         self::renderFooter();
     }
