@@ -255,7 +255,7 @@ class Weblog {
         if ($isMainPage && self::$config['show_urls'] !== 'Off') {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
             $url = self::$config['show_urls'] === 'Full' ? self::$config['domain'] . '/' . $slug . '/' : '/' . $slug;
-            echo '\n   ------------------------------------------------------------------\n   ' . 'Share: ' . $url . '\n\n';
+            echo "\n   ------------------------------------------------------------------\n   " . "Share: " . $url . "\n\n";
         }
     }
 
