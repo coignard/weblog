@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.4.2';
+    private const VERSION = '1.4.3';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -255,7 +255,7 @@ class Weblog {
         if ($isMainPage && self::$config['show_urls']) {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
             $url = self::$config['show_urls'] === 'Full' ? self::$config['domain'] . '/' . $slug . '/' : '/' . $slug;
-            echo "\n   ---\n   " . "Share: " . $url . "\n\n\n";
+            echo "\n   ---\n   " . "Share: " . $url . "\n\n";
         }
     }
 
