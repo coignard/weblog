@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.6.0-alpha.1';
+    private const VERSION = '1.6.0-alpha.2';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -648,6 +648,11 @@ class Weblog {
             return strcasecmp($post['category'], $category) == 0;
         });
 
+        if (empty($categoryPosts)) {
+            self::handleNotFound();
+            exit;
+        }
+
         $lastModifiedDate = 0;
         foreach ($categoryPosts as $post) {
             if ($post['date'] > $lastModifiedDate) {
@@ -662,6 +667,7 @@ class Weblog {
      * Handles the "Not Found" response with a randomized easter egg.
      */
     private static function handleNotFound() {
+        header('Content-Type: text/plain; charset=utf-8');
         if (rand(1, 10) != 1) {
             echo "404 Not Found\n";
         } else {
