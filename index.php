@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.5.0';
+    private const VERSION = '1.5.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -46,7 +46,7 @@ class Weblog {
         if ($requestedPost) {
             echo "\n\n";
             self::renderPost($requestedPost);
-            echo "\n\n\n";
+            echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
             self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
@@ -139,12 +139,17 @@ class Weblog {
             return $b->getMTime() - $a->getMTime();
         });
 
-        foreach ($files as $file) {
+        $lastIndex = count($files) - 1;
+        foreach ($files as $index => $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
                 self::renderPost($file, true);
-                echo "\n\n\n";
+                if ($index !== $lastIndex) {
+                    echo "\n\n\n";
+                }
             }
         }
+
+        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
     }
 
     /**
@@ -295,7 +300,7 @@ class Weblog {
             self::renderPost(new SplFileInfo($post['path']));
         }
 
-        echo "\n\n\n";
+        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
         self::renderFooter($year);
     }
 
@@ -350,7 +355,7 @@ class Weblog {
             self::renderPost($post);
         }
 
-        echo "\n\n\n";
+        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
         self::renderFooter($minYear == $maxYear ? $minYear : "{$minYear}-{$maxYear}");
         return true;
     }
@@ -371,7 +376,7 @@ class Weblog {
 
         echo "\n\n";
         self::renderPost($randomPostFile);
-        echo "\n\n\n";
+        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
         self::renderFooter(date("Y", $randomPost['date']));
     }
 
