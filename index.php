@@ -289,7 +289,7 @@ class Weblog {
         }
 
         foreach ($filteredPosts as $post) {
-            echo "\n\n\n";
+            echo "\n\n";
             self::renderPost(new SplFileInfo($post['path']));
         }
 
@@ -344,7 +344,7 @@ class Weblog {
         });
 
         foreach ($posts as $post) {
-            echo "\n\n\n";
+            echo "\n\n";
             self::renderPost($post);
         }
 
