@@ -214,14 +214,18 @@ class Weblog {
 
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
+                $relativePath = str_replace(self::$config['weblog_dir'], '', $file->getPathname());
+                $pathParts = explode('/', trim($relativePath, '/'));
+                $category = (count($pathParts) > 1) ? ucfirst($pathParts[0]) : "Misc";
+
                 $slug = self::slugify(basename($file->getFilename(), '.txt'));
                 $posts[] = [
                     'title' => basename($file->getFilename(), '.txt'),
                     'slug' => $slug,
                     'date' => $file->getMTime(),
-                    'guid' => $slug,
                     'content' => file_get_contents($file->getPathname()),
-                    'path' => $file->getPathname()
+                    'path' => $file->getPathname(),
+                    'category' => $category
                 ];
             }
         }
@@ -537,9 +541,13 @@ class Weblog {
      * Generates an RSS feed for the Weblog.
      * @return string The RSS feed as an XML format string.
      */
-    private static function generateRSS($posts = null, $category = null) {
+    private static function generateRSS($posts = null, $lastModifiedDate = null) {
         if ($posts === null) {
             $posts = self::fetchAllPosts();
+        }
+
+        if ($lastModifiedDate === null) {
+            $lastModifiedDate = !empty($posts) ? max(array_column($posts, 'date')) : time();
         }
 
         $allPosts = self::fetchAllPosts();
@@ -555,8 +563,8 @@ class Weblog {
         $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
         $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
 
-        if (!empty($posts)) {
-            $lastBuildDate = date(DATE_RSS, $posts[0]['date']);
+        if ($lastModifiedDate) {
+            $lastBuildDate = date(DATE_RSS, $lastModifiedDate);
             $rssTemplate .= '<lastBuildDate>' . $lastBuildDate . '</lastBuildDate>' . "\n";
         }
 
@@ -583,6 +591,7 @@ class Weblog {
             $rssTemplate .= '<guid isPermaLink="false">' . ($totalCount - $globalIndex) . '</guid>' . "\n";
             $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
             $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
+            $rssTemplate .= '<category>' . htmlspecialchars($post['category']) . '</category>' . "\n";
             $rssTemplate .= '<description>' . $formattedContent . '</description>' . "\n";
             $rssTemplate .= '</item>' . "\n";
         }
@@ -601,10 +610,17 @@ class Weblog {
     private static function generateCategoryRSS($category) {
         $posts = self::fetchAllPosts();
         $categoryPosts = array_filter($posts, function($post) use ($category) {
-            return strpos($post['path'], '/' . $category . '/') !== false;
+            return strcasecmp($post['category'], $category) == 0;
         });
 
-        return self::generateRSS($categoryPosts, $category);
+        $lastModifiedDate = 0;
+        foreach ($categoryPosts as $post) {
+            if ($post['date'] > $lastModifiedDate) {
+                $lastModifiedDate = $post['date'];
+            }
+        }
+
+        return self::generateRSS($categoryPosts, $lastModifiedDate);
     }
 
     /**
