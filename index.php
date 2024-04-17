@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.5.1';
+    private const VERSION = '1.5.2';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -295,8 +295,14 @@ class Weblog {
             return;
         }
 
+        $isFirst = true;
         foreach ($filteredPosts as $post) {
-            echo "\n\n";
+            if ($isFirst) {
+                echo "\n\n";
+                $isFirst = false;
+            } else {
+                echo "\n\n\n";
+            }
             self::renderPost(new SplFileInfo($post['path']));
         }
 
@@ -350,8 +356,14 @@ class Weblog {
             return $b->getMTime() - $a->getMTime();
         });
 
+        $isFirst = true;
         foreach ($posts as $post) {
-            echo "\n\n";
+            if ($isFirst) {
+                echo "\n\n";
+                $isFirst = false;
+            } else {
+                echo "\n\n\n";
+            }
             self::renderPost($post);
         }
 
