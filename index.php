@@ -84,9 +84,11 @@ class Weblog {
         self::$config['line_width'] ??= self::DEFAULT_LINE_WIDTH;
         self::$config['prefix_length'] ??= self::DEFAULT_PREFIX_LENGTH;
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
-        self::$config['domain'] = rtrim(self::$config['domain'] ?? 'http://localhost', '/');
         self::$config['show_powered_by'] ??= self::DEFAULT_SHOW_POWERED_BY;
         self::$config['show_urls'] ??= self::DEFAULT_SHOW_URLS;
+
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        self::$config['domain'] = rtrim($protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost'), '/');
     }
 
     /**
