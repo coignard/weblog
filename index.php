@@ -26,13 +26,16 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.5.4';
+    private const VERSION = '1.6.0-alpha.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
     private const DEFAULT_SHOW_POWERED_BY = true;
     private const DEFAULT_SHOW_URLS = false;
+    private const DEFAULT_SHOW_CATEGORY = true;
+    private const DEFAULT_SHOW_DATE = true;
+    private const DEFAULT_SHOW_COPYRIGHT = true;
 
     /**
      * Main function to run the Weblog.
@@ -91,9 +94,29 @@ class Weblog {
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
         self::$config['show_powered_by'] ??= self::DEFAULT_SHOW_POWERED_BY;
         self::$config['show_urls'] ??= self::DEFAULT_SHOW_URLS;
+        self::$config['show_category'] ??= self::DEFAULT_SHOW_CATEGORY;
+        self::$config['show_date'] ??= self::DEFAULT_SHOW_DATE;
+        self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         self::$config['domain'] = rtrim($protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost'), '/');
+
+        if (self::isMobileDevice()) {
+            self::$config['line_width'] = (int)(self::$config['line_width'] / 2) + 6;
+            self::$config['show_category'] = false;
+            self::$config['show_date'] = false;
+            self::$config['show_copyright'] = false;
+        }
+    }
+
+    /**
+     * Checks if the current user agent corresponds to a mobile device.
+     *
+     * @return bool Returns true if the user agent is identified as a mobile device, otherwise false.
+     */
+    private static function isMobileDevice() {
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        return preg_match('/Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i', $userAgent);
     }
 
     /**
@@ -262,7 +285,11 @@ class Weblog {
         $title = basename($file->getFilename(), '.txt');
         $date = date("d F Y", $file->getMTime());
 
-        $header = self::formatPostHeader($category, $title, $date);
+        if (self::$config['show_category'] && self::$config['show_date']) {
+            $header = self::formatPostHeader($title, $category, $date);
+        } else {
+            $header = self::formatPostHeader($title);
+        }
         echo $header . "\n\n\n";
 
         $content = file_get_contents($file->getPathname());
@@ -408,15 +435,19 @@ class Weblog {
      * @param string $date The publication date of the post.
      * @return string The formatted header.
      */
-    private static function formatPostHeader($category, $title, $date) {
+    private static function formatPostHeader($title = '', $category = '', $date = '') {
+        if (substr($title, 0, 1) === '~') {
+            $title = '* * *';
+       	}
+
+        if (empty($category) && empty($date)) {
+            return $title;
+        }
+
         $lineWidth = self::$config['line_width'];
         $categoryWidth = 20;
         $dateWidth = 20;
         $titleWidth = $lineWidth - $categoryWidth - $dateWidth;
-
-        if (substr($title, 0, 1) === '~') {
-            $title = '* * *';
-        }
 
         $titlePadding = max((int) (($titleWidth - mb_strlen($title)) / 2), 0);
         $formattedTitle = sprintf("%-{$titlePadding}s%s%-{$titlePadding}s", '', $title, '');
@@ -450,6 +481,10 @@ class Weblog {
      * @param int|null $year The specific year for the post page, null for the main page.
      */
     private static function renderFooter($year = null) {
+        if (!self::$config['show_copyright']) {
+            return;
+        }
+
         $authorEmail = self::$config['author_email'] ?? self::$config['author_name'];
 
         if ($year !== null) {
