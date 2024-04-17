@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.5.2';
+    private const VERSION = '1.5.3';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -549,7 +549,8 @@ class Weblog {
             $rssTemplate .= '<lastBuildDate>' . $lastBuildDate . '</lastBuildDate>' . "\n";
         }
 
-        foreach ($posts as $post) {
+        $totalPosts = count($posts);
+        foreach ($posts as $index => $post) {
             $title = $post['title'];
             if (substr($title, 0, 1) === '~') {
                 $title = '* * *';
@@ -557,6 +558,7 @@ class Weblog {
             $paragraphs = explode("\n", trim($post['content']));
             $formattedContent = '';
             $lastParagraphKey = count($paragraphs) - 1;
+            $postNumber = $totalPosts - $index;
 
             foreach ($paragraphs as $key => $paragraph) {
                 if (!empty($paragraph)) {
@@ -566,9 +568,9 @@ class Weblog {
 
             $rssTemplate .= '<item>' . "\n";
             $rssTemplate .= '<title>' . htmlspecialchars($title) . '</title>' . "\n";
+            $rssTemplate .= '<guid isPermaLink="false">' . $postNumber . '</guid>' . "\n";
             $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
             $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
-            $rssTemplate .= '<guid isPermaLink="false">' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</guid>' . "\n";
             $rssTemplate .= '<description>' . $formattedContent . '</description>' . "\n";
             $rssTemplate .= '</item>' . "\n";
         }
