@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.5.3';
+    private const VERSION = '1.5.4';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -54,6 +54,11 @@ class Weblog {
                 if ($go === 'sitemap.xml') {
                     header('Content-Type: application/xml; charset=utf-8');
                     echo self::renderSitemap();
+                    exit;
+                } else if (preg_match('#^rss/([\w-]+)$#', $go, $matches)) {
+                    $category = $matches[1];
+                    header('Content-Type: application/xml; charset=utf-8');
+                    echo self::generateCategoryRSS($category);
                     exit;
                 } else if ($go === 'rss') {
                     header('Content-Type: application/xml; charset=utf-8');
@@ -532,25 +537,33 @@ class Weblog {
      * Generates an RSS feed for the Weblog.
      * @return string The RSS feed as an XML format string.
      */
-    private static function generateRSS() {
+    private static function generateRSS($posts = null, $category = null) {
+        if ($posts === null) {
+            $posts = self::fetchAllPosts();
+        }
+
+        $allPosts = self::fetchAllPosts();
+        $titleSuffix = $category ? ' - ' . ucfirst($category) : '';
+
         $rssTemplate = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $rssTemplate .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n";
         $rssTemplate .= '<channel>' . "\n";
-        $rssTemplate .= '<title>' . htmlspecialchars(self::$config['author_name']) . '</title>' . "\n";
+        $rssTemplate .= '<title>' . htmlspecialchars(self::$config['author_name']) . $titleSuffix . '</title>' . "\n";
         $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . '</link>' . "\n";
-        $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss/" rel="self" type="application/xml" />' . "\n";
+        $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss' . ($category ? '/' . $category : '') . '" rel="self" type="application/rss+xml" />' . "\n";
         $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
         $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
         $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
 
-        $posts = self::fetchAllPosts();
         if (!empty($posts)) {
             $lastBuildDate = date(DATE_RSS, $posts[0]['date']);
             $rssTemplate .= '<lastBuildDate>' . $lastBuildDate . '</lastBuildDate>' . "\n";
         }
 
-        $totalPosts = count($posts);
+        $totalCount = count($allPosts);
+
         foreach ($posts as $index => $post) {
+            $globalIndex = array_search($post, $allPosts);
             $title = $post['title'];
             if (substr($title, 0, 1) === '~') {
                 $title = '* * *';
@@ -558,7 +571,6 @@ class Weblog {
             $paragraphs = explode("\n", trim($post['content']));
             $formattedContent = '';
             $lastParagraphKey = count($paragraphs) - 1;
-            $postNumber = $totalPosts - $index;
 
             foreach ($paragraphs as $key => $paragraph) {
                 if (!empty($paragraph)) {
@@ -568,7 +580,7 @@ class Weblog {
 
             $rssTemplate .= '<item>' . "\n";
             $rssTemplate .= '<title>' . htmlspecialchars($title) . '</title>' . "\n";
-            $rssTemplate .= '<guid isPermaLink="false">' . $postNumber . '</guid>' . "\n";
+            $rssTemplate .= '<guid isPermaLink="false">' . ($totalCount - $globalIndex) . '</guid>' . "\n";
             $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
             $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
             $rssTemplate .= '<description>' . $formattedContent . '</description>' . "\n";
@@ -578,6 +590,21 @@ class Weblog {
         $rssTemplate .= '</channel>' . "\n";
         $rssTemplate .= '</rss>' . "\n";
         return $rssTemplate;
+    }
+
+    /**
+     * Generates an RSS feed for a specified category.
+     *
+     * @param string $category The category for which to generate the RSS feed.
+     * @return string The RSS feed as an XML format string.
+     */
+    private static function generateCategoryRSS($category) {
+        $posts = self::fetchAllPosts();
+        $categoryPosts = array_filter($posts, function($post) use ($category) {
+            return strpos($post['path'], '/' . $category . '/') !== false;
+        });
+
+        return self::generateRSS($categoryPosts, $category);
     }
 
     /**
