@@ -26,11 +26,12 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.6.0-alpha.2';
+    private const VERSION = '1.6.0-alpha.3';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
+    private const DEFAULT_DOMAIN = 'localhost';
     private const DEFAULT_SHOW_POWERED_BY = true;
     private const DEFAULT_SHOW_URLS = false;
     private const DEFAULT_SHOW_CATEGORY = true;
@@ -99,13 +100,15 @@ class Weblog {
         self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        self::$config['domain'] = rtrim($protocol . ($_SERVER['HTTP_HOST'] ?? 'localhost'), '/');
+        self::$config['domain'] ??= self::DEFAULT_DOMAIN;
+        self::$config['url'] = rtrim($protocol . self::$config['domain'], '/');
 
         if (self::isMobileDevice()) {
             self::$config['line_width'] = (int)(self::$config['line_width'] / 2) + 6;
             self::$config['show_category'] = false;
             self::$config['show_date'] = false;
             self::$config['show_copyright'] = false;
+            self::$config['show_urls'] = false;
         }
     }
 
@@ -274,9 +277,9 @@ class Weblog {
     /**
      * Renders a single post, including its header, content, and optionally a URL.
      * @param SplFileInfo $file The file information object for the post.
-     * @param bool $isMainPage Indicates if rendering is happening on the main page.
+     * @param bool $show_urls Indicates if we should append URLs to each post.
      */
-    private static function renderPost($file, $isMainPage = false) {
+    private static function renderPost($file, $show_urls = false) {
         $relativePath = str_replace(self::$config['weblog_dir'], '', $file->getPathname());
 
         $pathParts = explode('/', trim($relativePath, '/'));
@@ -295,10 +298,10 @@ class Weblog {
         $content = file_get_contents($file->getPathname());
         echo self::formatPostContent($content);
 
-        if ($isMainPage && self::$config['show_urls']) {
+        if ($show_urls && self::$config['show_urls']) {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
-            $url = self::$config['show_urls'] === 'Full' ? self::$config['domain'] . '/' . $slug . '/' : '/' . $slug;
-            echo "\n   ---\n   " . "Share: " . $url . "\n\n";
+            $url = self::$config['show_urls'] === 'Full' ? self::$config['url'] . '/' . $slug . '/' : '/' . $slug;
+            echo "\n   __________________________________________________________________\n\n   " . $url . "\n\n";
         }
     }
 
@@ -314,7 +317,7 @@ class Weblog {
 
         if (!$year) {
             self::handleNotFound();
-            return;
+            exit;
         }
 
         $posts = self::fetchAllPosts();
@@ -328,7 +331,7 @@ class Weblog {
 
         if (empty($filteredPosts)) {
             self::handleNotFound();
-            return;
+            exit;
         }
 
         $isFirst = true;
@@ -339,7 +342,7 @@ class Weblog {
             } else {
                 echo "\n\n\n";
             }
-            self::renderPost(new SplFileInfo($post['path']));
+            self::renderPost(new SplFileInfo($post['path']), true);
         }
 
         echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
@@ -400,7 +403,7 @@ class Weblog {
             } else {
                 echo "\n\n\n";
             }
-            self::renderPost($post);
+            self::renderPost($post, true);
         }
 
         echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
@@ -535,7 +538,7 @@ class Weblog {
         $dom->appendChild($urlset);
 
         $mainUrl = $dom->createElement('url');
-        $mainLoc = $dom->createElement('loc', self::$config['domain'] . '/');
+        $mainLoc = $dom->createElement('loc', self::$config['url'] . '/');
         $mainUrl->appendChild($mainLoc);
 
         $lastmodDate = $files ? date('Y-m-d', $files[0]->getMTime()) : date('Y-m-d');
@@ -553,7 +556,7 @@ class Weblog {
         foreach ($files as $file) {
             if ($file->isFile() && $file->getExtension() === 'txt') {
                 $url = $dom->createElement('url');
-                $loc = $dom->createElement('loc', self::$config['domain'] . '/' . self::slugify(basename($file->getFilename(), '.txt')) . '/');
+                $loc = $dom->createElement('loc', self::$config['url'] . '/' . self::slugify(basename($file->getFilename(), '.txt')) . '/');
                 $url->appendChild($loc);
 
                 $lastmod = $dom->createElement('lastmod', date('Y-m-d', $file->getMTime()));
@@ -576,7 +579,7 @@ class Weblog {
      * Generates an RSS feed for the Weblog.
      * @return string The RSS feed as an XML format string.
      */
-    private static function generateRSS($posts = null, $lastModifiedDate = null) {
+    private static function generateRSS($posts = null, $lastModifiedDate = null, $category = null) {
         if ($posts === null) {
             $posts = self::fetchAllPosts();
         }
@@ -592,8 +595,8 @@ class Weblog {
         $rssTemplate .= '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n";
         $rssTemplate .= '<channel>' . "\n";
         $rssTemplate .= '<title>' . htmlspecialchars(self::$config['author_name']) . $titleSuffix . '</title>' . "\n";
-        $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . '</link>' . "\n";
-        $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['domain']) . '/rss' . ($category ? '/' . $category : '') . '" rel="self" type="application/rss+xml" />' . "\n";
+        $rssTemplate .= '<link>' . htmlspecialchars(self::$config['url']) . '/' . '</link>' . "\n";
+        $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['url']) . '/rss' . ($category ? '/' . $category : '') . '/" rel="self" type="application/rss+xml" />' . "\n";
         $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
         $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
         $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
@@ -624,7 +627,7 @@ class Weblog {
             $rssTemplate .= '<item>' . "\n";
             $rssTemplate .= '<title>' . htmlspecialchars($title) . '</title>' . "\n";
             $rssTemplate .= '<guid isPermaLink="false">' . ($totalCount - $globalIndex) . '</guid>' . "\n";
-            $rssTemplate .= '<link>' . htmlspecialchars(self::$config['domain']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
+            $rssTemplate .= '<link>' . htmlspecialchars(self::$config['url']) . '/' . htmlspecialchars($post['slug']) . '/' . '</link>' . "\n";
             $rssTemplate .= '<pubDate>' . date(DATE_RSS, $post['date']) . '</pubDate>' . "\n";
             $rssTemplate .= '<category>' . htmlspecialchars($post['category']) . '</category>' . "\n";
             $rssTemplate .= '<description>' . $formattedContent . '</description>' . "\n";
@@ -660,7 +663,7 @@ class Weblog {
             }
         }
 
-        return self::generateRSS($categoryPosts, $lastModifiedDate);
+        return self::generateRSS($categoryPosts, $lastModifiedDate, $category);
     }
 
     /**
