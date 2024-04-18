@@ -33,7 +33,7 @@ class Weblog {
     private const DEFAULT_WEBLOG_DIR = __DIR__ . '/weblog/';
     private const DEFAULT_DOMAIN = 'localhost';
     private const DEFAULT_SHOW_POWERED_BY = true;
-    private const DEFAULT_SHOW_URLS = false;
+    private const DEFAULT_SHOW_URLS = 'Full';
     private const DEFAULT_SHOW_CATEGORY = true;
     private const DEFAULT_SHOW_DATE = true;
     private const DEFAULT_SHOW_COPYRIGHT = true;
