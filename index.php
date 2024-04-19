@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.6.0-alpha.3';
+    private const VERSION = '1.6.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -50,7 +50,7 @@ class Weblog {
         if ($requestedPost) {
             echo "\n\n";
             self::renderPost($requestedPost);
-            echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
+            echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
             self::renderFooter(date("Y", $requestedPost->getMTime()));
         } else {
             if (isset($_GET['go'])) {
@@ -175,12 +175,12 @@ class Weblog {
             if ($file->isFile() && $file->getExtension() === 'txt') {
                 self::renderPost($file, true);
                 if ($index !== $lastIndex) {
-                    echo "\n\n\n";
+                    echo "\n\n\n\n";
                 }
             }
         }
 
-        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
+        echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
     }
 
     /**
@@ -301,7 +301,7 @@ class Weblog {
         if ($show_urls && self::$config['show_urls']) {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
             $url = self::$config['show_urls'] === 'Full' ? self::$config['url'] . '/' . $slug . '/' : '/' . $slug;
-            echo "\n   __________________________________________________________________\n\n   " . $url . "\n\n";
+            echo "\n   " . $url . "\n\n\n\n";
         }
     }
 
@@ -340,12 +340,12 @@ class Weblog {
                 echo "\n\n";
                 $isFirst = false;
             } else {
-                echo "\n\n\n";
+                echo "\n\n\n\n";
             }
             self::renderPost(new SplFileInfo($post['path']), true);
         }
 
-        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
+        echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
         self::renderFooter($year);
     }
 
@@ -401,12 +401,12 @@ class Weblog {
                 echo "\n\n";
                 $isFirst = false;
             } else {
-                echo "\n\n\n";
+                echo "\n\n\n\n";
             }
             self::renderPost($post, true);
         }
 
-        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
+        echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
         self::renderFooter($minYear == $maxYear ? $minYear : "{$minYear}-{$maxYear}");
         return true;
     }
@@ -427,8 +427,40 @@ class Weblog {
 
         echo "\n\n";
         self::renderPost($randomPostFile);
-        echo (self::$config['show_powered_by'] ? "\n\n\n" : "\n\n");
+        echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
         self::renderFooter(date("Y", $randomPost['date']));
+    }
+
+    /**
+     * Formats the About section header with "About" on the left and the author's name centered.
+     *
+     * @param string $authorName The author's name to be centered.
+     * @return string The formatted header string.
+     */
+    private static function formatAboutHeader($authorName) {
+        $lineWidth = self::$config['line_width'];
+        $leftText = "About";
+        $centerText = $authorName;
+        $rightText = '';
+
+        $leftWidth = mb_strlen($leftText);
+        $centerWidth = mb_strlen($centerText);
+        $rightWidth = mb_strlen($rightText);
+
+        $totalTextWidth = $leftWidth + $centerWidth + $rightWidth;
+
+        $availableSpace = $lineWidth - $totalTextWidth;
+        $spaceToLeft = (int)(($lineWidth - $centerWidth) / 2);
+        $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
+
+        return sprintf(
+            "%s%s%s%s%s",
+            $leftText,
+            str_repeat(" ", $spaceToLeft - $leftWidth),
+            $centerText,
+            str_repeat(" ", $spaceToRight - $rightWidth),
+            $rightText
+        );
     }
 
     /**
@@ -684,10 +716,9 @@ class Weblog {
      */
     private static function renderHome() {
         echo "\n\n";
-        echo self::centerText(self::$config['author_name']) . "\n";
-        echo "\nAbout\n\n";
+        echo self::formatAboutHeader(self::$config['author_name']) . "\n\n\n";
         echo self::formatParagraph(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
-        echo "\n\n\n\n";
+        echo "\n\n\n\n\n\n";
         self::renderAllPosts();
         self::renderFooter();
     }
