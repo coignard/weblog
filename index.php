@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.7.1';
+    private const VERSION = '1.7.2';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -487,7 +487,12 @@ class Weblog {
         $formattedAboutText = '';
 
         foreach ($paragraphs as $paragraph) {
-            $formattedAboutText .= self::formatParagraph($paragraph) . "\n";
+            if (!self::isMobileDevice()) {
+                $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+            } else {
+                $formattedParagraph = $paragraph;
+	    }
+            $formattedAboutText .= self::formatParagraph($formattedParagraph) . "\n";
         }
 
         return $formattedAboutText;
@@ -548,7 +553,11 @@ class Weblog {
         $formattedContent = '';
 
         foreach ($paragraphs as $paragraph) {
-            $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+            if (!self::isMobileDevice()) {
+                $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+            } else {
+       	        $formattedParagraph = $paragraph;
+            }
             $formattedContent .= self::formatParagraph($formattedParagraph) . "\n";
         }
 
@@ -761,8 +770,7 @@ class Weblog {
     private static function renderHome() {
         echo "\n\n";
         echo self::formatAboutHeader(self::$config['author_name']) . "\n\n\n";
-        echo self::formatAboutText(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
-        echo "\n\n\n\n\n";
+        echo self::formatAboutText(self::$config['about_text'] . "\n\n\n\n\n");
         self::renderAllPosts();
         self::renderFooter();
     }
