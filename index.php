@@ -99,12 +99,16 @@ class Weblog {
         self::$config['show_date'] ??= self::DEFAULT_SHOW_DATE;
         self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
 
+        if (isset(self::$config['about_text'])) {
+            self::$config['about_text'] = str_replace("\\n", "\n", self::$config['about_text']);
+        }
+
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         self::$config['domain'] ??= self::DEFAULT_DOMAIN;
         self::$config['url'] = rtrim($protocol . self::$config['domain'], '/');
 
         if (self::isMobileDevice()) {
-            self::$config['line_width'] = (int)(self::$config['line_width'] / 2) + 6;
+            self::$config['line_width'] = (int)(self::$config['line_width'] / 2) - 1;
             self::$config['show_category'] = false;
             self::$config['show_date'] = false;
             self::$config['show_copyright'] = false;
@@ -453,6 +457,10 @@ class Weblog {
         $spaceToLeft = (int)(($lineWidth - $centerWidth) / 2);
         $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
 
+        if (self::isMobileDevice() && ($centerWidth % 2) !== 0) {
+            $spaceToLeft++;
+	}
+
         return sprintf(
             "%s%s%s%s%s",
             $leftText,
@@ -464,34 +472,64 @@ class Weblog {
     }
 
     /**
+     * Formats a paragraph from the about text.
+     * @param string $paragraph The paragraph to format.
+     * @return string The formatted paragraph.
+     */
+    private static function formatAboutText($aboutText) {
+       	$paragraphs = explode("\n", $aboutText);
+        $formattedAboutText = '';
+
+        foreach ($paragraphs as $paragraph) {
+            $formattedAboutText .= self::formatParagraph($paragraph) . "\n";
+        }
+
+        return $formattedAboutText;
+    }
+
+    /**
      * Formats the header of a post, including category, title, and publication date.
-     * @param string $category The category of the post.
+     * Adjusts dynamically based on device type and enabled settings.
+     *
      * @param string $title The title of the post.
-     * @param string $date The publication date of the post.
+     * @param string $category The category of the post (optional).
+     * @param string $date The publication date of the post (optional).
      * @return string The formatted header.
      */
     private static function formatPostHeader($title = '', $category = '', $date = '') {
         if (substr($title, 0, 1) === '~') {
             $title = '* * *';
-       	}
-
-        if (empty($category) && empty($date)) {
-            return $title;
         }
 
         $lineWidth = self::$config['line_width'];
-        $categoryWidth = 20;
-        $dateWidth = 20;
-        $titleWidth = $lineWidth - $categoryWidth - $dateWidth;
 
-        $titlePadding = max((int) (($titleWidth - mb_strlen($title)) / 2), 0);
-        $formattedTitle = sprintf("%-{$titlePadding}s%s%-{$titlePadding}s", '', $title, '');
+        $includeCategory = self::$config['show_category'] && !empty($category);
+        $includeDate = self::$config['show_date'] && !empty($date);
 
-        if (mb_strlen($formattedTitle) < $titleWidth) {
-            $formattedTitle .= ' ';
+        $availableWidth = $lineWidth;
+        $categoryWidth = $includeCategory ? 20 : 0;
+        $dateWidth = $includeDate ? 20 : 0;
+        $titleWidth = $availableWidth - $categoryWidth - $dateWidth;
+
+        $titlePaddingLeft = (int) (($titleWidth - mb_strlen($title)) / 2);
+        $titlePaddingRight = $titleWidth - mb_strlen($title) - $titlePaddingLeft;
+
+        if (self::isMobileDevice() && ($titleWidth % 2) !== 0) {
+            $titlePaddingLeft++;
         }
 
-        return sprintf("%-{$categoryWidth}s%s%{$dateWidth}s", $category, $formattedTitle, $date);
+        $formattedTitle = str_repeat(' ', $titlePaddingLeft) . $title . str_repeat(' ', $titlePaddingRight);
+
+        $header = '';
+        if ($includeCategory) {
+            $header .= str_pad($category, $categoryWidth);
+        }
+        $header .= $formattedTitle;
+        if ($includeDate) {
+            $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
+        }
+
+        return $header;
     }
 
     /**
@@ -717,8 +755,8 @@ class Weblog {
     private static function renderHome() {
         echo "\n\n";
         echo self::formatAboutHeader(self::$config['author_name']) . "\n\n\n";
-        echo self::formatParagraph(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
-        echo "\n\n\n\n\n\n";
+        echo self::formatAboutText(preg_replace('/\.(\s)/', '. $1', rtrim(self::$config['about_text'])));
+        echo "\n\n\n\n\n";
         self::renderAllPosts();
         self::renderFooter();
     }
