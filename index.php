@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.7.0';
+    private const VERSION = '1.7.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -443,7 +443,13 @@ class Weblog {
      */
     private static function formatAboutHeader($authorName) {
         $lineWidth = self::$config['line_width'];
-        $leftText = "About";
+
+        if (!self::isMobileDevice()) {
+            $leftText = "About";
+        } else {
+    	    $leftText = '';
+        }
+
         $centerText = $authorName;
         $rightText = '';
 
@@ -458,7 +464,7 @@ class Weblog {
         $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
 
         if (self::isMobileDevice() && ($centerWidth % 2) !== 0) {
-            $spaceToLeft++;
+            $spaceToLeft = $spaceToLeft + 2;
 	}
 
         return sprintf(
@@ -515,7 +521,7 @@ class Weblog {
         $titlePaddingRight = $titleWidth - mb_strlen($title) - $titlePaddingLeft;
 
         if (self::isMobileDevice() && ($titleWidth % 2) !== 0) {
-            $titlePaddingLeft++;
+            $titlePaddingLeft = $titlePaddingLeft + 2;
         }
 
         $formattedTitle = str_repeat(' ', $titlePaddingLeft) . $title . str_repeat(' ', $titlePaddingRight);
