@@ -99,16 +99,16 @@ server {
 }
 ```
 
-## Security
-
-- Ensure `config.ini` and `/weblog/` is not accessible via the Web.
-
 ### Usage
 
 - Navigate to your blog's URL to see a list of all posts.
 - Access individual posts by appending `/your-post-name/` to the URL.
 - Access posts from a specific date by `/YYYY/MM/DD/`.
 - View all posts under a category by `/your-category-name/`.
+
+## Security
+
+- Ensure `config.ini` and `/weblog/` is not accessible via the Web.
 
 ## Contributing
 
