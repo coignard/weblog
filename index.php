@@ -26,7 +26,7 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.7.2';
+    private const VERSION = '1.7.3';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -37,6 +37,7 @@ class Weblog {
     private const DEFAULT_SHOW_CATEGORY = true;
     private const DEFAULT_SHOW_DATE = true;
     private const DEFAULT_SHOW_COPYRIGHT = true;
+    private const DEFAULT_SHOW_SEPARATOR = false;
 
     /**
      * Main function to run the Weblog.
@@ -48,7 +49,7 @@ class Weblog {
         $requestedPost = self::getRequestedPost();
 
         if ($requestedPost) {
-            echo "\n\n";
+            echo "\n\n\n";
             self::renderPost($requestedPost);
             echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
             self::renderFooter(date("Y", $requestedPost->getMTime()));
@@ -98,10 +99,7 @@ class Weblog {
         self::$config['show_category'] ??= self::DEFAULT_SHOW_CATEGORY;
         self::$config['show_date'] ??= self::DEFAULT_SHOW_DATE;
         self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
-
-        if (isset(self::$config['about_text'])) {
-            self::$config['about_text'] = str_replace("\\n", "\n", self::$config['about_text']);
-        }
+        self::$config['show_separator'] ??= self::DEFAULT_SHOW_SEPARATOR;
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         self::$config['domain'] ??= self::DEFAULT_DOMAIN;
@@ -113,6 +111,15 @@ class Weblog {
             self::$config['show_date'] = false;
             self::$config['show_copyright'] = false;
             self::$config['show_urls'] = false;
+            if (isset(self::$config['about_text_alt'])) {
+                self::$config['about_text'] = str_replace("\\n", "\n", self::$config['about_text_alt']);
+            } else {
+                self::$config['about_text'] = str_replace("\\n", "\n", self::$config['about_text']);
+            }
+        } else {
+            if (isset(self::$config['about_text'])) {
+                self::$config['about_text'] = str_replace("\\n", "\n", self::$config['about_text']);
+            }
         }
     }
 
@@ -305,7 +312,7 @@ class Weblog {
         if ($show_urls && self::$config['show_urls']) {
             $slug = self::slugify(basename($file->getFilename(), '.txt'));
             $url = self::$config['show_urls'] === 'Full' ? self::$config['url'] . '/' . $slug . '/' : '/' . $slug;
-            echo "\n   " . $url . "\n\n\n\n";
+            echo "\n   " . $url . "\n\n";
         }
     }
 
@@ -341,7 +348,7 @@ class Weblog {
         $isFirst = true;
         foreach ($filteredPosts as $post) {
             if ($isFirst) {
-                echo "\n\n";
+                echo "\n\n\n";
                 $isFirst = false;
             } else {
                 echo "\n\n\n\n";
@@ -402,7 +409,7 @@ class Weblog {
         $isFirst = true;
         foreach ($posts as $post) {
             if ($isFirst) {
-                echo "\n\n";
+                echo "\n\n\n";
                 $isFirst = false;
             } else {
                 echo "\n\n\n\n";
@@ -429,7 +436,7 @@ class Weblog {
         $randomPost = $posts[$randomIndex];
         $randomPostFile = new SplFileInfo($randomPost['path']);
 
-        echo "\n\n";
+        echo "\n\n\n";
         self::renderPost($randomPostFile);
         echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
         self::renderFooter(date("Y", $randomPost['date']));
@@ -467,14 +474,14 @@ class Weblog {
             $spaceToLeft = $spaceToLeft + 2;
 	}
 
-        return sprintf(
+        return "\n\n\n" . sprintf(
             "%s%s%s%s%s",
             $leftText,
             str_repeat(" ", $spaceToLeft - $leftWidth),
             $centerText,
             str_repeat(" ", $spaceToRight - $rightWidth),
             $rightText
-        );
+        ) . "\n\n\n";
     }
 
     /**
@@ -493,6 +500,13 @@ class Weblog {
                 $formattedParagraph = $paragraph;
 	    }
             $formattedAboutText .= self::formatParagraph($formattedParagraph) . "\n";
+        }
+
+        if (self::$config['show_separator']) {
+            $separator = "\n\n\n" . str_repeat(' ', self::isMobileDevice() ? self::$config['prefix_length'] : 0) . str_repeat('_', self::$config['line_width'] - (self::isMobileDevice() ? self::$config['prefix_length'] : 0)) . "\n\n\n\n\n";
+            $formattedAboutText .= $separator;
+        } else {
+            $formattedAboutText .= "\n\n\n\n\n";
         }
 
         return $formattedAboutText;
@@ -768,9 +782,8 @@ class Weblog {
      * Renders the home page.
      */
     private static function renderHome() {
-        echo "\n\n";
-        echo self::formatAboutHeader(self::$config['author_name']) . "\n\n\n";
-        echo self::formatAboutText(self::$config['about_text'] . "\n\n\n\n\n");
+        echo self::formatAboutHeader(self::$config['author_name']);
+       	echo self::formatAboutText(self::$config['about_text']);
         self::renderAllPosts();
         self::renderFooter();
     }
