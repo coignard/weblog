@@ -26,7 +26,8 @@
 
 class Weblog {
     private static $config = [];
-    private const VERSION = '1.7.3';
+    private static $rewrites = [];
+    private const VERSION = '1.8.0';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -90,7 +91,7 @@ class Weblog {
      * Loads configuration from config.ini file. Parses the file line-by-line and populates the config array.
      */
     private static function loadConfig() {
-        self::$config = parse_ini_file(self::CONFIG_PATH);
+        self::$config = parse_ini_file(self::CONFIG_PATH, true)['Weblog'];
         self::$config['line_width'] ??= self::DEFAULT_LINE_WIDTH;
         self::$config['prefix_length'] ??= self::DEFAULT_PREFIX_LENGTH;
         self::$config['weblog_dir'] ??= self::DEFAULT_WEBLOG_DIR;
@@ -100,6 +101,8 @@ class Weblog {
         self::$config['show_date'] ??= self::DEFAULT_SHOW_DATE;
         self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
         self::$config['show_separator'] ??= self::DEFAULT_SHOW_SEPARATOR;
+
+       	self::$rewrites = parse_ini_file(self::CONFIG_PATH, true)['Rewrites'];
 
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         self::$config['domain'] ??= self::DEFAULT_DOMAIN;
@@ -200,6 +203,16 @@ class Weblog {
      */
     private static function getRequestedPost() {
         $postSlug = $_GET['go'] ?? '';
+        if (isset(self::$rewrites[rtrim($postSlug, '/')])) {
+            $redirectUrl = self::$rewrites[$postSlug];
+
+            if (strpos($redirectUrl, 'http://') === 0 || strpos($redirectUrl, 'https://') === 0) {
+                header('Location: ' . $redirectUrl, true, 301);
+            } else {
+                header('Location: ' . self::$config['url'] . '/' . $redirectUrl . '/', true, 301);
+            }
+            exit;
+        }
         $postSlug = preg_replace('/\.txt$/', '', $postSlug);
         $weblogDir = self::$config['weblog_dir'];
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($weblogDir, RecursiveDirectoryIterator::SKIP_DOTS));
@@ -278,7 +291,17 @@ class Weblog {
      * @return string The slugified string.
      */
     private static function slugify($title) {
-        $title = mb_strtolower($title);
+        $title = mb_strtolower($title, 'UTF-8');
+        $replacements = [
+            '/а/u' => 'a',  '/б/u' => 'b',   '/в/u' => 'v',  '/г/u' => 'g',  '/д/u' => 'd',
+            '/е/u' => 'e',  '/ё/u' => 'yo',  '/ж/u' => 'zh', '/з/u' => 'z',  '/и/u' => 'i',
+            '/й/u' => 'y',  '/к/u' => 'k',   '/л/u' => 'l',  '/м/u' => 'm',  '/н/u' => 'n',
+            '/о/u' => 'o',  '/п/u' => 'p',   '/р/u' => 'r',  '/с/u' => 's',  '/т/u' => 't',
+            '/у/u' => 'u',  '/ф/u' => 'f',   '/х/u' => 'h',  '/ц/u' => 'ts', '/ч/u' => 'ch',
+            '/ш/u' => 'sh', '/щ/u' => 'sch', '/ъ/u' => '',   '/ы/u' => 'y',  '/ь/u' => '',
+            '/э/u' => 'e',  '/ю/u' => 'yu',  '/я/u' => 'ya',
+        ];
+        $title = preg_replace(array_keys($replacements), array_values($replacements), $title);
         $title = iconv('UTF-8', 'ASCII//TRANSLIT', $title);
         $title = preg_replace('/[^a-z0-9\s-]/', '', $title);
         $title = preg_replace('/\s+/', '-', $title);
@@ -696,7 +719,7 @@ class Weblog {
         $rssTemplate .= '<title>' . htmlspecialchars(self::$config['author_name']) . $titleSuffix . '</title>' . "\n";
         $rssTemplate .= '<link>' . htmlspecialchars(self::$config['url']) . '/' . '</link>' . "\n";
         $rssTemplate .= '<atom:link href="' . htmlspecialchars(self::$config['url']) . '/rss' . ($category ? '/' . $category : '') . '/" rel="self" type="application/rss+xml" />' . "\n";
-        $rssTemplate .= '<description>' . htmlspecialchars(self::$config['about_text']) . '</description>' . "\n";
+       	$rssTemplate .= '<description>' . htmlspecialchars(strstr(self::$config['about_text'], "\n\n\n", true)) . '</description>' . "\n";
         $rssTemplate .= '<language>' . 'en' . '</language>' . "\n";
         $rssTemplate .= '<generator>Weblog ' . 'v' . self::VERSION . '</generator>' . "\n";
 
