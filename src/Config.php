@@ -6,6 +6,7 @@ namespace Weblog;
 
 use Weblog\Model\Entity\Author;
 use Weblog\Model\Enum\ShowUrls;
+use Weblog\Utils\StringUtils;
 use Weblog\Utils\Validator;
 
 final class Config
@@ -25,7 +26,7 @@ final class Config
         public Author $author = new Author(),
         public string $version = self::VERSION,
         public string $domain = 'localhost',
-        public string $url = 'https://localhost',
+        public string $url = 'http://localhost',
         public int $lineWidth = 72,
         public int $prefixLength = 3,
         public string $weblogDir = __DIR__.'/../weblog/',
@@ -67,27 +68,27 @@ final class Config
 
         $this->config = $config['Weblog'];
 
-        if (!is_dir($this->getString('weblog_dir'))) {
+        if (isset($this->config['weblog_dir']) && !is_dir($this->getString('weblog_dir') ?? '')) {
             throw new \RuntimeException('Weblog directory not found.');
         }
-        
+
         $this->setAuthor();
 
         $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS'] || 443 === $_SERVER['SERVER_PORT']) ? 'https://' : 'http://';
 
-        $this->lineWidth = $this->getInt('line_width');
-        $this->prefixLength = $this->getInt('prefix_length');
-        $this->weblogDir = $this->getString('weblog_dir');
-        $this->domain = $this->getString('domain');
+        $this->lineWidth = $this->getInt('line_width') ?? $this->lineWidth;
+        $this->prefixLength = $this->getInt('prefix_length') ?? $this->prefixLength;
+        $this->weblogDir = $this->getString('weblog_dir') ?? $this->weblogDir;
+        $this->domain = $this->getString('domain') ?? $this->domain;
         $this->url = rtrim($protocol.$this->getString('domain'), '/');
-        $this->showPoweredBy = $this->getBool('show_powered_by');
-        $this->showUrls = ShowUrls::tryFrom($this->getString('show_urls')) ?? ShowUrls::FULL;
-        $this->showCategory = $this->getBool('show_category');
-        $this->showDate = $this->getBool('show_date');
-        $this->showCopyright = $this->getBool('show_copyright');
-        $this->showSeparator = $this->getBool('show_separator');
+        $this->showPoweredBy = $this->getBool('show_powered_by') ?? $this->showPoweredBy;
+        $this->showUrls = ShowUrls::tryFrom($this->getString('show_urls') ?? '') ?? $this->showUrls;
+        $this->showCategory = $this->getBool('show_category') ?? $this->showCategory;
+        $this->showDate = $this->getBool('show_date') ?? $this->showDate;
+        $this->showCopyright = $this->getBool('show_copyright') ?? $this->showCopyright;
+        $this->showSeparator = $this->getBool('show_separator') ?? $this->showSeparator;
 
-        $this->rewrites = (array) $config['Rewrites'];
+        $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 
         $this->handleMobileDevice();
     }
@@ -105,19 +106,17 @@ final class Config
         $this->showUrls = ShowUrls::OFF;
 
         if (isset($this->config['about_text_alt'])) {
-            $this->author->setAbout($this->getString($this->config['about_text_alt']));
+            $this->author->setAbout(StringUtils::sanitizeText(
+                $this->getString($this->config['about_text_alt']) ?? $this->author->getAbout())
+            );
         }
     }
 
     private function setAuthor(): void
     {
-        $name = $this->getString('author_name');
-        $email = $this->getString('author_email');
-        $aboutText = $this->getString('about_text');
-
-        if ('' === $name || '' === $email) {
-            throw new \InvalidArgumentException('Required author information is missing or invalid.');
-        }
+        $name = $this->getString('author_name') ?? $this->author->getName();
+        $email = $this->getString('author_email') ?? $this->author->getEmail();
+        $aboutText = StringUtils::sanitizeText($this->getString('about_text') ?? $this->author->getAbout());
 
         $this->author = new Author(
             name: $name,
@@ -126,18 +125,18 @@ final class Config
         );
     }
 
-    private function getInt(string $key): int
+    private function getInt(string $key): ?int
     {
-        return isset($this->config[$key]) && is_numeric($this->config[$key]) ? (int) ($this->config[$key]) : throw new \InvalidArgumentException('Cannot cast value to int.');
+        return isset($this->config[$key]) && is_numeric($this->config[$key]) ? (int) ($this->config[$key]) : null;
     }
 
-    private function getString(string $key): string
+    private function getString(string $key): ?string
     {
-        return isset($this->config[$key]) ? (string) ($this->config[$key]) : throw new \InvalidArgumentException('Cannot cast value to string.');
+        return isset($this->config[$key]) ? (string) ($this->config[$key]) : null;
     }
 
-    private function getBool(string $key): bool
+    private function getBool(string $key): ?bool
     {
-        return isset($this->config[$key]) ? filter_var($this->config[$key], \FILTER_VALIDATE_BOOLEAN) : throw new \InvalidArgumentException('Cannot cast value to boolean.');
+        return isset($this->config[$key]) ? filter_var($this->config[$key], \FILTER_VALIDATE_BOOLEAN) : null;
     }
 }
