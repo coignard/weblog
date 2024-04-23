@@ -27,7 +27,7 @@
 class Weblog {
     private static $config = [];
     private static $rewrites = [];
-    private const VERSION = '1.8.0';
+    private const VERSION = '1.8.1';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -50,7 +50,7 @@ class Weblog {
         $requestedPost = self::getRequestedPost();
 
         if ($requestedPost) {
-            echo "\n\n\n";
+            echo "\n\n\n\n";
             self::renderPost($requestedPost);
             echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
             self::renderFooter(date("Y", $requestedPost->getMTime()));
@@ -371,7 +371,7 @@ class Weblog {
         $isFirst = true;
         foreach ($filteredPosts as $post) {
             if ($isFirst) {
-                echo "\n\n\n";
+                echo "\n\n\n\n";
                 $isFirst = false;
             } else {
                 echo "\n\n\n\n";
@@ -432,7 +432,7 @@ class Weblog {
         $isFirst = true;
         foreach ($posts as $post) {
             if ($isFirst) {
-                echo "\n\n\n";
+                echo "\n\n\n\n";
                 $isFirst = false;
             } else {
                 echo "\n\n\n\n";
@@ -459,7 +459,7 @@ class Weblog {
         $randomPost = $posts[$randomIndex];
         $randomPostFile = new SplFileInfo($randomPost['path']);
 
-        echo "\n\n\n";
+        echo "\n\n\n\n";
         self::renderPost($randomPostFile);
         echo (self::$config['show_powered_by'] ? "\n\n\n\n" : "\n\n\n");
         self::renderFooter(date("Y", $randomPost['date']));
@@ -474,12 +474,13 @@ class Weblog {
     private static function formatAboutHeader($authorName) {
         $lineWidth = self::$config['line_width'];
 
-        if (!self::isMobileDevice()) {
-            $leftText = "About";
-        } else {
-    	    $leftText = '';
-        }
+        //if (!self::isMobileDevice()) {
+        //    $leftText = "";
+        //} else {
+    	//    $leftText = '';
+        //}
 
+        $leftText = '';
         $centerText = $authorName;
         $rightText = '';
 
@@ -497,7 +498,7 @@ class Weblog {
             $spaceToLeft = $spaceToLeft + 2;
 	}
 
-        return "\n\n\n" . sprintf(
+        return "\n\n\n\n" . sprintf(
             "%s%s%s%s%s",
             $leftText,
             str_repeat(" ", $spaceToLeft - $leftWidth),
@@ -518,7 +519,7 @@ class Weblog {
 
         foreach ($paragraphs as $paragraph) {
             if (!self::isMobileDevice()) {
-                $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+                $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
             } else {
                 $formattedParagraph = $paragraph;
 	    }
@@ -526,10 +527,10 @@ class Weblog {
         }
 
         if (self::$config['show_separator']) {
-            $separator = "\n\n\n" . str_repeat(' ', self::isMobileDevice() ? self::$config['prefix_length'] : 0) . str_repeat('_', self::$config['line_width'] - (self::isMobileDevice() ? self::$config['prefix_length'] : 0)) . "\n\n\n\n\n";
+            $separator = "\n\n\n" . str_repeat(' ', self::isMobileDevice() ? self::$config['prefix_length'] : 0) . str_repeat('—', self::$config['line_width'] - (self::isMobileDevice() ? self::$config['prefix_length'] : 0)) . "\n\n\n\n\n";
             $formattedAboutText .= $separator;
         } else {
-            $formattedAboutText .= "\n\n\n\n\n";
+            $formattedAboutText .= "\n\n\n\n";
         }
 
         return $formattedAboutText;
@@ -591,7 +592,7 @@ class Weblog {
 
         foreach ($paragraphs as $paragraph) {
             if (!self::isMobileDevice()) {
-                $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+       	       	$formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
             } else {
        	        $formattedParagraph = $paragraph;
             }
@@ -635,7 +636,7 @@ class Weblog {
             echo self::centerText($poweredByText);
         }
 
-        echo "\n\n";
+        echo "\n\n\n";
     }
 
     /**
