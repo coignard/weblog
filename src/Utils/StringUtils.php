@@ -70,7 +70,7 @@ final class StringUtils
     /**
      * Cleans a slug from extensions.
      *
-     * @param string $slug the string to slugify
+     * @param string $slug the string to sanitize
      *
      * @return string the sanitized string
      */
@@ -83,6 +83,18 @@ final class StringUtils
         }
 
         return rtrim($slug, '/');
+    }
+
+    /**
+     * Converts escaped newline characters to actual newlines in the provided text.
+     *
+     * @param string $text The text to process.
+     *
+     * @return string The text with escaped newlines converted to actual newlines.
+     */
+    public static function sanitizeText(string $text): string
+    {
+        return str_replace("\\n", "\n", $text);
     }
 
     /**
@@ -114,5 +126,42 @@ final class StringUtils
         }
 
         return null;
+    }
+
+    /**
+     * Extracts and validates the date from a path.
+     *
+     * This method processes a date path from URL and returns a DateTimeImmutable object
+     * if the format is valid and the date is logically correct. Supports formats: yyyy/mm/dd, yyyy/mm, or yyyy.
+     *
+     * @param string $datePath The date path from the URL.
+     * 
+     * @return array with the date and precision
+     */
+    public static function extractDateFromPath(string $datePath): array
+    {
+        $datePath = trim($datePath, '/');
+        $parts = explode('/', $datePath);
+        $format = '';
+        $precision = '';
+    
+        switch (count($parts)) {
+            case 1:
+                $format = 'Y';
+                $precision = 'year';
+                break;
+            case 2:
+                $format = 'Y/m';
+                $precision = 'month';
+                break;
+            case 3:
+                $format = 'Y/m/d';
+                $precision = 'day';
+                break;
+        }
+    
+        $date = \DateTimeImmutable::createFromFormat($format, $datePath);
+
+        return [$date === false ? null : $date, $precision];
     }
 }

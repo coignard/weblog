@@ -72,21 +72,13 @@ final class TextUtils
     {
         $lineWidth = Config::get()->lineWidth;
 
-        if (!Validator::isMobileDevice()) {
-            $leftText = 'About';
-        } else {
-            $leftText = '';
-        }
-
+        $leftText = '';
         $centerText = Config::get()->author->getName();
         $rightText = '';
 
         $leftWidth = mb_strlen($leftText);
         $centerWidth = mb_strlen($centerText);
         $rightWidth = mb_strlen($rightText);
-
-        $totalTextWidth = $leftWidth + $centerWidth + $rightWidth;
-        $availableSpace = $lineWidth - $totalTextWidth;
 
         $spaceToLeft = (int) (($lineWidth - $centerWidth) / 2);
         $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
@@ -95,7 +87,7 @@ final class TextUtils
             $spaceToLeft += 2;
         }
 
-        return "\n\n\n".sprintf(
+        return "\n\n\n\n".sprintf(
             '%s%s%s%s%s',
             $leftText,
             str_repeat(' ', $spaceToLeft - $leftWidth),
@@ -118,7 +110,7 @@ final class TextUtils
         foreach ($paragraphs as $paragraph) {
             $formattedParagraph = $paragraph;
             if (!Validator::isMobileDevice()) {
-                $formattedParagraph = preg_replace('/\.(\s)/', '. $1', rtrim($paragraph));
+                $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
             }
             $formattedAboutText .= self::formatParagraph($formattedParagraph ?? '')."\n";
         }
@@ -129,7 +121,7 @@ final class TextUtils
             str_repeat('_', Config::get()->lineWidth - (Validator::isMobileDevice() ? Config::get()->prefixLength : 0))."\n\n\n\n\n";
             $formattedAboutText .= $separator;
         } else {
-            $formattedAboutText .= "\n\n\n\n\n";
+            $formattedAboutText .= "\n\n\n\n";
         }
 
         return $formattedAboutText;

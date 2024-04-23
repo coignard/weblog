@@ -134,4 +134,16 @@ final class PostCollection implements \IteratorAggregate, \Countable
     {
         return \count($this->posts);
     }
+
+    /**
+     * @param callable $callback A callback function that returns true if the post should be included.
+     * 
+     * @return PostCollection A new collection with the filtered posts.
+     */
+    public function filter(callable $callback): PostCollection
+    {
+        $filteredPosts = array_filter($this->posts, $callback);
+        
+        return new self($filteredPosts);
+    }
 }

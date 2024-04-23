@@ -56,7 +56,7 @@ abstract class AbstractController
             echo TextUtils::centerText($poweredByText);
         }
 
-        echo "\n\n";
+        echo "\n\n\n";
     }
 
     /**

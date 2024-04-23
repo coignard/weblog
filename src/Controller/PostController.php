@@ -30,23 +30,30 @@ final class PostController extends AbstractController
 
     /**
      * Displays posts.
-     *
+     * 
      * @param PostCollection $posts defaults to all
+     * @param bool $showUrls indicates if we should append URLs to each post
+     * @param bool $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
      */
-    public function renderPosts(?PostCollection $posts = null): void
+    public function renderPosts(?PostCollection $posts = null, bool $showUrls = false, bool $isPostNewline = false): void
     {
         if (null === $posts) {
             $posts = $this->postRepository->fetchAllPosts();
         }
 
-        $lastIndex = \count($posts) - 1;
+        $lastIndex = $posts->count() - 1;
         foreach ($posts as $index => $post) {
             if (!$post instanceof Post) {
                 continue;
             }
-            $this->renderPost($post, true);
 
-            if ($index !== $lastIndex) {
+            if ($isPostNewline) {
+                echo "\n\n\n\n";
+            }
+
+            $this->renderPost($post, $showUrls);
+
+            if ($index !== $lastIndex && !$isPostNewline) {
                 echo "\n\n\n\n";
             }
         }
@@ -83,7 +90,7 @@ final class PostController extends AbstractController
      *
      * @param bool $showUrls indicates if we should append URLs to each post
      */
-    public function renderPost(Post $post, $showUrls = false): void
+    public function renderPost(Post $post, bool $showUrls = false): void
     {
         $date = $post->getDate()->format('d F Y');
 
@@ -126,6 +133,7 @@ final class PostController extends AbstractController
             $this->handleNotFound();
         }
 
+        echo "\n\n\n\n";
         $this->renderPosts($posts);
         $this->renderFooter($posts->getYearRange());
     }
@@ -133,30 +141,28 @@ final class PostController extends AbstractController
     /**
      * Renders posts filtered by date.
      *
-     * @param string $datePath date path from URL in format yyyy/mm/dd
+     * @param string $datePath date path from URL in format yyyy/mm/dd or yyyy/mm or yyyy
      */
     public function renderPostsByDate(string $datePath): void
     {
-        $date = \DateTimeImmutable::createFromFormat('Y/m/d', trim($datePath, '/'));
+        list($date, $precision) = StringUtils::extractDateFromPath($datePath);
 
-        if (false === $date) {
-            $this->handleNotFound('Failed to parse date. Format should be yyyy/mm/dd.');
-
+        if (null === $date) {
+            $this->handleNotFound();
             return;
         }
+    
 
-        $posts = $this->postRepository->fetchPostsByDate($date);
-
+        $posts = $this->postRepository->fetchPostsByDate($date, $precision);
+    
         if ($posts->isEmpty()) {
             $this->handleNotFound();
-
             return;
         }
-
-        $this->renderPosts($posts);
-
+        $this->renderPosts($posts, false, true);
         $this->renderFooter($date->format('Y'));
     }
+    
 
     /**
      * Renders a random post from all available posts.

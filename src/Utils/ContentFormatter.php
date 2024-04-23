@@ -22,7 +22,11 @@ final class ContentFormatter
 
         foreach ($paragraphs as $paragraph) {
             if (!empty($paragraph)) {
-                $formattedContent .= TextUtils::formatParagraph($paragraph)."\n";
+                $formattedParagraph = $paragraph;
+                if (!Validator::isMobileDevice()) {
+                    $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
+                }
+                $formattedContent .= TextUtils::formatParagraph($formattedParagraph ?? '')."\n";
             }
         }
 

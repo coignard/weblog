@@ -27,6 +27,11 @@ final class Author
         return $this->name;
     }
 
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
     public function getAbout(): string
     {
         return $this->aboutText;

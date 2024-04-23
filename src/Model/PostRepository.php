@@ -73,12 +73,24 @@ final class PostRepository
      *
      * @return PostCollection returns a collection of posts that match the given date
      */
-    public function fetchPostsByDate(\DateTimeImmutable $date = new \DateTimeImmutable()): PostCollection
+    public function fetchPostsByDate(\DateTimeImmutable $date, string $precision): PostCollection
     {
         $posts = $this->fetchAllPosts();
 
-        return $posts->filterByDate($date);
+        return $posts->filter(function(Post $post) use ($date, $precision) {
+            switch ($precision) {
+                case 'year':
+                    return $date->format('Y') === $post->getDate()->format('Y');
+                case 'month':
+                    return $date->format('Y-m') === $post->getDate()->format('Y-m');
+                case 'day':
+                    return $date->format('Y-m-d') === $post->getDate()->format('Y-m-d');
+                default:
+                    return false;
+            }
+        });
     }
+    
 
     /**
      * Fetches all posts from a specified category.
