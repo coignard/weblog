@@ -474,12 +474,6 @@ class Weblog {
     private static function formatAboutHeader($authorName) {
         $lineWidth = self::$config['line_width'];
 
-        //if (!self::isMobileDevice()) {
-        //    $leftText = "";
-        //} else {
-    	//    $leftText = '';
-        //}
-
         $leftText = '';
         $centerText = $authorName;
         $rightText = '';
