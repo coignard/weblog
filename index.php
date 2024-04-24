@@ -27,7 +27,7 @@
 class Weblog {
     private static $config = [];
     private static $rewrites = [];
-    private const VERSION = '1.8.1';
+    private const VERSION = '1.8.2';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -39,6 +39,8 @@ class Weblog {
     private const DEFAULT_SHOW_DATE = true;
     private const DEFAULT_SHOW_COPYRIGHT = true;
     private const DEFAULT_SHOW_SEPARATOR = false;
+    private const DEFAULT_CAPITALIZE_TITLES = false;
+    private const DEFAULT_CITY = '';
 
     /**
      * Main function to run the Weblog.
@@ -101,6 +103,8 @@ class Weblog {
         self::$config['show_date'] ??= self::DEFAULT_SHOW_DATE;
         self::$config['show_copyright'] ??= self::DEFAULT_SHOW_COPYRIGHT;
         self::$config['show_separator'] ??= self::DEFAULT_SHOW_SEPARATOR;
+        self::$config['capitalize_titles'] ??= self::DEFAULT_CAPITALIZE_TITLES;
+        self::$config['city'] ??= self::DEFAULT_CITY;
 
        	self::$rewrites = parse_ini_file(self::CONFIG_PATH, true)['Rewrites'];
 
@@ -474,9 +478,13 @@ class Weblog {
     private static function formatAboutHeader($authorName) {
         $lineWidth = self::$config['line_width'];
 
-        $leftText = '';
+        $leftText = self::isMobileDevice() ? '' : 'About';
         $centerText = $authorName;
-        $rightText = '';
+        $rightText = self::isMobileDevice() ? '' : self::$config['city'];
+
+        $leftText = self::capitalizeText($leftText);
+        $centerText = self::capitalizeText($centerText);
+        $rightText = self::capitalizeText($rightText);
 
         $leftWidth = mb_strlen($leftText);
         $centerWidth = mb_strlen($centerText);
@@ -572,7 +580,7 @@ class Weblog {
             $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
         }
 
-        return $header;
+        return self::capitalizeText($header);
     }
 
     /**
@@ -794,6 +802,13 @@ class Weblog {
             echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
         }
         http_response_code(404);
+    }
+
+    private static function capitalizeText($text) {
+        if (self::$config['capitalize_titles']) {
+            return mb_strtoupper($text, 'UTF-8');
+        }
+        return $text;
     }
 
     /**
