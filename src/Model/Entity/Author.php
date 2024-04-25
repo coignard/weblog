@@ -13,11 +13,13 @@ final class Author
      *
      * @param string $name      the name of the author
      * @param string $email     the email address of the author
+     * @param string $city      the city of the author
      * @param string $aboutText a brief description or bio of the author
      */
     public function __construct(
         private readonly string $name = 'Unknown',
         private readonly string $email = 'no-reply@example.com',
+        private readonly string $city = '',
         private string $aboutText = '',
     ) {
     }
@@ -45,5 +47,10 @@ final class Author
     public function getInformation(): string
     {
         return $this->email ?? $this->name;
+    }
+
+    public function getCity(): string
+    {
+        return $this->city;
     }
 }

@@ -164,4 +164,13 @@ final class StringUtils
 
         return [$date === false ? null : $date, $precision];
     }
+
+    public static function capitalizeText(string $text): string 
+    {
+        if (Config::get()->capitalizeTitles) {
+            return mb_strtoupper($text, 'UTF-8');
+        }
+        
+        return $text;
+    }
 }

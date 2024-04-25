@@ -20,6 +20,10 @@ final class TextUtils
         $lineWidth = Config::get()->lineWidth;
         $leftPadding = ($lineWidth - mb_strlen($text)) / 2;
 
+        if ($leftPadding < 0) {
+            return $text;
+        }
+            
         return str_repeat(' ', (int) floor($leftPadding)).$text;
     }
 
@@ -72,9 +76,13 @@ final class TextUtils
     {
         $lineWidth = Config::get()->lineWidth;
 
-        $leftText = '';
+        $leftText = Validator::isMobileDevice() ? '' : 'About';
         $centerText = Config::get()->author->getName();
-        $rightText = '';
+        $rightText = Validator::isMobileDevice() ? '' : Config::get()->author->getCity();
+
+        $leftText = StringUtils::capitalizeText($leftText);
+        $centerText = StringUtils::capitalizeText($centerText);
+        $rightText = StringUtils::capitalizeText($rightText);
 
         $leftWidth = mb_strlen($leftText);
         $centerWidth = mb_strlen($centerText);
@@ -118,7 +126,7 @@ final class TextUtils
         if (Config::get()->showSeparator) {
             $separator = "\n\n\n".str_repeat(' ',
                 Validator::isMobileDevice() ? Config::get()->prefixLength : 0).
-            str_repeat('_', Config::get()->lineWidth - (Validator::isMobileDevice() ? Config::get()->prefixLength : 0))."\n\n\n\n\n";
+            str_repeat('—', Config::get()->lineWidth - (Validator::isMobileDevice() ? Config::get()->prefixLength : 0))."\n\n\n\n\n";
             $formattedAboutText .= $separator;
         } else {
             $formattedAboutText .= "\n\n\n\n";

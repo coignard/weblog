@@ -36,6 +36,7 @@ final class Config
         public bool $showDate = true,
         public bool $showCopyright = true,
         public bool $showSeparator = false,
+        public bool $capitalizeTitles = false,
         public array $rewrites = [],
     ) {
         $this->loadConfig();
@@ -87,6 +88,7 @@ final class Config
         $this->showDate = $this->getBool('show_date') ?? $this->showDate;
         $this->showCopyright = $this->getBool('show_copyright') ?? $this->showCopyright;
         $this->showSeparator = $this->getBool('show_separator') ?? $this->showSeparator;
+        $this->capitalizeTitles = $this->getBool('capitalize_titles') ?? $this->capitalizeTitles;
 
         $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 
@@ -116,11 +118,13 @@ final class Config
     {
         $name = $this->getString('author_name') ?? $this->author->getName();
         $email = $this->getString('author_email') ?? $this->author->getEmail();
+        $city = $this->getString('city') ?? $this->author->getCity();
         $aboutText = StringUtils::sanitizeText($this->getString('about_text') ?? $this->author->getAbout());
 
         $this->author = new Author(
             name: $name,
             email: $email,
+            city: $city,
             aboutText: $aboutText
         );
     }

@@ -42,6 +42,10 @@ abstract class AbstractController
     public function renderFooter(?string $year = null): void
     {
         echo Config::get()->showPoweredBy ? "\n\n\n\n" : "\n\n\n";
+
+        if (false === Config::get()->showCopyright) {
+            return;
+        }
         
         if (null === $year) {
             $dateRange = $this->postRepository->getPostYearsRange();

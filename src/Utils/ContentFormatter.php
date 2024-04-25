@@ -21,13 +21,11 @@ final class ContentFormatter
         $formattedContent = '';
 
         foreach ($paragraphs as $paragraph) {
-            if (!empty($paragraph)) {
                 $formattedParagraph = $paragraph;
                 if (!Validator::isMobileDevice()) {
                     $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
                 }
                 $formattedContent .= TextUtils::formatParagraph($formattedParagraph ?? '')."\n";
-            }
         }
 
         return $formattedContent;
@@ -76,7 +74,7 @@ final class ContentFormatter
             $header .= str_pad($date, $dateWidth, ' ', \STR_PAD_LEFT);
         }
 
-        return $header;
+        return StringUtils::capitalizeText($header);
     }
 
     /**

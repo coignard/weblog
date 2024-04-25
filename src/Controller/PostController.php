@@ -13,7 +13,6 @@ use Weblog\Model\Enum\ShowUrls;
 use Weblog\Utils\ContentFormatter;
 use Weblog\Utils\StringUtils;
 use Weblog\Utils\TextUtils;
-use Weblog\Utils\Validator;
 
 final class PostController extends AbstractController
 {
@@ -55,6 +54,7 @@ final class PostController extends AbstractController
             $this->renderPost($post, $showUrls);
 
             if ($index !== $lastIndex && !$isPostNewline) {
+
                 echo "\n\n\n\n";
             }
         }
@@ -109,7 +109,7 @@ final class PostController extends AbstractController
      */
     public function renderFullPost(Post $post): void
     {
-        echo "\n\n\n";
+        echo "\n\n\n\n";
         $this->renderPost($post);
         $this->renderFooter($post->getDate()->format('Y'));
     }
