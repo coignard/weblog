@@ -49,7 +49,7 @@ final class FeedController extends AbstractController
     /**
      * Renders an RSS feed for the given category.
      *
-     * @param string $category the category to filter by.
+     * @param string $category the category to filter by
      */
     public function renderRSSByCategory(string $category): void
     {

@@ -68,7 +68,7 @@ final class FeedGenerator
         self::appendXmlElement($channel, 'description', Config::get()->author->getAbout());
         self::appendXmlElement($channel, 'language', 'en');
         self::appendXmlElement($channel, 'generator', 'Weblog v'.Config::get()->version);
-        self::appendXmlElement($channel, 'lastBuildDate', $lastmodDate->format(\DATE_RSS));
+        self::appendXmlElement($channel, 'lastBuildDate', $lastmodDate->format(DATE_RSS));
 
         self::appendPostItems($posts, $channel);
 
@@ -80,7 +80,7 @@ final class FeedGenerator
      *
      * @param \SimpleXMLElement $parent      the parent XML element
      * @param string            $name        the tag name of the child element
-     * @param string|null       $value       the value of the child element
+     * @param null|string       $value       the value of the child element
      * @param array             $attributes  an associative array of attributes for the child element
      * @param array             $subelements an associative array of subelements
      */
@@ -138,7 +138,7 @@ final class FeedGenerator
             self::appendXmlElement($item, 'title', $title);
             self::appendXmlElement($item, 'guid', $posts->getPostIndex($post), ['isPermaLink' => 'false']);
             self::appendXmlElement($item, 'link', Config::get()->url.'/'.$post->getSlug().'/');
-            self::appendXmlElement($item, 'pubDate', $post->getFormattedDate(\DATE_RSS));
+            self::appendXmlElement($item, 'pubDate', $post->getFormattedDate(DATE_RSS));
             self::appendXmlElement($item, 'category', $post->getCategory());
             self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($post->getContent()));
         }

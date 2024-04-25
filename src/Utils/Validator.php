@@ -46,17 +46,17 @@ final class Validator
     public static function isValidCategoryPost(\SplFileInfo $file, string $category, string $directory): bool
     {
         $filePath = str_replace('\\', '/', $file->getPathname());
-        $directory = rtrim(str_replace('\\', '/', $directory), '/') . '/';
-    
-        $relativePath = substr($filePath, strlen($directory));
+        $directory = rtrim(str_replace('\\', '/', $directory), '/').'/';
+
+        $relativePath = substr($filePath, \strlen($directory));
         $relativePath = ltrim($relativePath, '/');
-    
+
         $firstDir = strstr($relativePath, '/', true) ?: $relativePath;
-    
-        if (($category === 'misc' && (empty($firstDir) || $firstDir === 'misc')) || $firstDir === $category) {
+
+        if (('misc' === $category && (empty($firstDir) || 'misc' === $firstDir)) || $firstDir === $category) {
             return true;
         }
-    
+
         return false;
     }
 

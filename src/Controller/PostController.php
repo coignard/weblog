@@ -8,8 +8,8 @@ use Weblog\Config;
 use Weblog\Controller\Abstract\AbstractController;
 use Weblog\Exception\NotFoundException;
 use Weblog\Model\Entity\Post;
-use Weblog\Model\PostCollection;
 use Weblog\Model\Enum\ShowUrls;
+use Weblog\Model\PostCollection;
 use Weblog\Utils\ContentFormatter;
 use Weblog\Utils\StringUtils;
 use Weblog\Utils\TextUtils;
@@ -30,10 +30,10 @@ final class PostController extends AbstractController
 
     /**
      * Displays posts.
-     * 
-     * @param PostCollection $posts defaults to all
-     * @param bool $showUrls indicates if we should append URLs to each post
-     * @param bool $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
+     *
+     * @param PostCollection $posts         defaults to all
+     * @param bool           $showUrls      indicates if we should append URLs to each post
+     * @param bool           $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
      */
     public function renderPosts(?PostCollection $posts = null, bool $showUrls = false, bool $isPostNewline = false): void
     {
@@ -54,7 +54,6 @@ final class PostController extends AbstractController
             $this->renderPost($post, $showUrls);
 
             if ($index !== $lastIndex && !$isPostNewline) {
-
                 echo "\n\n\n\n";
             }
         }
@@ -65,7 +64,7 @@ final class PostController extends AbstractController
      *
      * @param string $postSlug the post's slug
      *
-     * @return Post|null the post of the requested post or null if not found
+     * @return null|Post the post of the requested post or null if not found
      */
     public function getRequestedPost(string $postSlug): ?Post
     {
@@ -78,6 +77,7 @@ final class PostController extends AbstractController
             } else {
                 header('Location: '.Config::get()->url.'/'.$redirectUrl.'/', true, 301);
             }
+
             exit;
         }
 
@@ -139,21 +139,20 @@ final class PostController extends AbstractController
      */
     public function renderPostsByDate(string $datePath): void
     {
-        list($date, $precision) = StringUtils::extractDateFromPath($datePath);
+        [$date, $precision] = StringUtils::extractDateFromPath($datePath);
 
         if (null === $date) {
             throw new NotFoundException('Invalid date format. Please use yyyy/mm/dd, yyyy/mm, or yyyy.');
         }
-    
+
         $posts = $this->postRepository->fetchPostsByDate($date, $precision);
-    
+
         if ($posts->isEmpty()) {
             throw new NotFoundException('No posts found for the given date.');
         }
         $this->renderPosts($posts, false, true);
         $this->renderFooter($date->format('Y'));
     }
-    
 
     /**
      * Renders a random post from all available posts.

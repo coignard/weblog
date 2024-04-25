@@ -11,13 +11,14 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
+    private const VERSION = '1.8.0';
+    private const CONFIG_PATH = __DIR__.'/../config.ini';
+
     /**
      * @var array<string,string>
      */
     private array $config = [];
     private static ?Config $instance = null;
-    private const VERSION = '1.8.0';
-    private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
      * Private constructor to prevent creating a new instance of the Config singleton.
@@ -108,8 +109,10 @@ final class Config
         $this->showUrls = ShowUrls::OFF;
 
         if (isset($this->config['about_text_alt'])) {
-            $this->author->setAbout(StringUtils::sanitizeText(
-                $this->getString($this->config['about_text_alt']) ?? $this->author->getAbout())
+            $this->author->setAbout(
+                StringUtils::sanitizeText(
+                    $this->getString($this->config['about_text_alt']) ?? $this->author->getAbout()
+                )
             );
         }
     }
@@ -141,6 +144,6 @@ final class Config
 
     private function getBool(string $key): ?bool
     {
-        return isset($this->config[$key]) ? filter_var($this->config[$key], \FILTER_VALIDATE_BOOLEAN) : null;
+        return isset($this->config[$key]) ? filter_var($this->config[$key], FILTER_VALIDATE_BOOLEAN) : null;
     }
 }

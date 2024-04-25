@@ -23,7 +23,7 @@ final class TextUtils
         if ($leftPadding < 0) {
             return $text;
         }
-            
+
         return str_repeat(' ', (int) floor($leftPadding)).$text;
     }
 
@@ -124,8 +124,10 @@ final class TextUtils
         }
 
         if (Config::get()->showSeparator) {
-            $separator = "\n\n\n".str_repeat(' ',
-                Validator::isMobileDevice() ? Config::get()->prefixLength : 0).
+            $separator = "\n\n\n".str_repeat(
+                ' ',
+                Validator::isMobileDevice() ? Config::get()->prefixLength : 0
+            ).
             str_repeat('—', Config::get()->lineWidth - (Validator::isMobileDevice() ? Config::get()->prefixLength : 0))."\n\n\n\n\n";
             $formattedAboutText .= $separator;
         } else {

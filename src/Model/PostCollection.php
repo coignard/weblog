@@ -14,9 +14,7 @@ final class PostCollection implements \IteratorAggregate, \Countable
      *
      * @param Post[] $posts array of Post objects
      */
-    public function __construct(private array $posts = [])
-    {
-    }
+    public function __construct(private array $posts = []) {}
 
     /**
      * Adds a Post object to the collection.
@@ -41,7 +39,7 @@ final class PostCollection implements \IteratorAggregate, \Countable
     /**
      * Retrieves the most recent date from the posts in the collection.
      *
-     * @return \DateTimeImmutable|null returns the date of the most recent post in the collection, or null if the collection is empty
+     * @return null|\DateTimeImmutable returns the date of the most recent post in the collection, or null if the collection is empty
      */
     public function getMostRecentDate(): ?\DateTimeImmutable
     {
@@ -136,13 +134,14 @@ final class PostCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @param callable $callback A callback function that returns true if the post should be included.
-     * 
-     * @return PostCollection A new collection with the filtered posts.
+     * @param callable $callback a callback function that returns true if the post should be included
+     *
+     * @return PostCollection a new collection with the filtered posts
      */
-    public function filter(callable $callback): PostCollection
+    public function filter(callable $callback): self
     {
         $filteredPosts = array_filter($this->posts, $callback);
+
         return new self($filteredPosts);
     }
 }

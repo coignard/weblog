@@ -88,13 +88,13 @@ final class StringUtils
     /**
      * Converts escaped newline characters to actual newlines in the provided text.
      *
-     * @param string $text The text to process.
+     * @param string $text the text to process
      *
-     * @return string The text with escaped newlines converted to actual newlines.
+     * @return string the text with escaped newlines converted to actual newlines
      */
     public static function sanitizeText(string $text): string
     {
-        return str_replace("\\n", "\n", $text);
+        return str_replace('\\n', "\n", $text);
     }
 
     /**
@@ -117,7 +117,7 @@ final class StringUtils
      *
      * @param string $route the input string, typically part of a URL
      *
-     * @return string|null returns the category name if the pattern matches, or null if it does not
+     * @return null|string returns the category name if the pattern matches, or null if it does not
      */
     public static function extractCategoryFromRSS(string $route): ?string
     {
@@ -134,8 +134,8 @@ final class StringUtils
      * This method processes a date path from URL and returns a DateTimeImmutable object
      * if the format is valid and the date is logically correct. Supports formats: yyyy/mm/dd, yyyy/mm, or yyyy.
      *
-     * @param string $datePath The date path from the URL.
-     * 
+     * @param string $datePath the date path from the URL
+     *
      * @return array with the date and precision
      */
     public static function extractDateFromPath(string $datePath): array
@@ -144,33 +144,35 @@ final class StringUtils
         $parts = explode('/', $datePath);
         $format = '';
         $precision = '';
-    
-        switch (count($parts)) {
+
+        switch (\count($parts)) {
             case 1:
                 $format = 'Y';
                 $precision = 'year';
                 break;
+
             case 2:
                 $format = 'Y/m';
                 $precision = 'month';
                 break;
+
             case 3:
                 $format = 'Y/m/d';
                 $precision = 'day';
                 break;
         }
-    
+
         $date = \DateTimeImmutable::createFromFormat($format, $datePath);
 
-        return [$date === false ? null : $date, $precision];
+        return [false === $date ? null : $date, $precision];
     }
 
-    public static function capitalizeText(string $text): string 
+    public static function capitalizeText(string $text): string
     {
         if (Config::get()->capitalizeTitles) {
             return mb_strtoupper($text, 'UTF-8');
         }
-        
+
         return $text;
     }
 }

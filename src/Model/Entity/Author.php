@@ -21,8 +21,7 @@ final class Author
         private readonly string $email = 'no-reply@example.com',
         private readonly string $city = '',
         private string $aboutText = '',
-    ) {
-    }
+    ) {}
 
     public function getName(): string
     {

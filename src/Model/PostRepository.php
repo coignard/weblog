@@ -45,9 +45,9 @@ final class PostRepository
      * Retrieves the specific post based on the requested slug.
      *
      * @param string      $slug      the slug of the post to find
-     * @param string|null $directory the path of the directory to search
+     * @param null|string $directory the path of the directory to search
      *
-     * @return Post|null the file info of the requested post or null if not found
+     * @return null|Post the file info of the requested post or null if not found
      */
     public function fetchPostInDirectory(string $slug, ?string $directory = null): ?Post
     {
@@ -76,7 +76,7 @@ final class PostRepository
     {
         $posts = $this->fetchAllPosts();
 
-        return $posts->filter(function(Post $post) use ($date, $precision) {
+        return $posts->filter(static function (Post $post) use ($date, $precision) {
             switch ($precision) {
                 case 'year':
                     return $date->format('Y') === $post->getDate()->format('Y');
@@ -89,7 +89,6 @@ final class PostRepository
             }
         });
     }
-    
 
     /**
      * Fetches all posts from a specified category.

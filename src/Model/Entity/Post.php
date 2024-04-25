@@ -20,8 +20,7 @@ final class Post
         private readonly string $title,
         private readonly string $path,
         private readonly \DateTimeImmutable $date,
-    ) {
-    }
+    ) {}
 
     /**
      * Creates an instance from a file.

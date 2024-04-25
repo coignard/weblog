@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 /**
  * Autoloads PHP classes by searching for class files in 'src/'.
+ *
+ * @param mixed $className The name of the class to load
  */
-function customAutoloader($className): void
+function customAutoloader(mixed $className): void
 {
     if (str_starts_with($className, 'Weblog\\')) {
         $className = substr($className, 6);

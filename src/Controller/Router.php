@@ -13,8 +13,7 @@ final class Router
     public function __construct(
         private readonly PostController $postController,
         private readonly FeedController $feedController,
-    ) {
-    }
+    ) {}
 
     /**
      * Routes the request based on server parameters using a predefined set of routes.
@@ -35,8 +34,7 @@ final class Router
             };
         } catch (\Exception $e) {
             $this->postController->handleNotFound($e->getMessage());
-        }   
-        
+        }
     }
 
     /**
