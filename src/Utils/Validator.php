@@ -45,22 +45,19 @@ final class Validator
      */
     public static function isValidCategoryPost(\SplFileInfo $file, string $category, string $directory): bool
     {
-        if (!$file->isFile() || 'txt' !== $file->getExtension()) {
-            return false;
+        $filePath = str_replace('\\', '/', $file->getPathname());
+        $directory = rtrim(str_replace('\\', '/', $directory), '/') . '/';
+    
+        $relativePath = substr($filePath, strlen($directory));
+        $relativePath = ltrim($relativePath, '/');
+    
+        $firstDir = strstr($relativePath, '/', true) ?: $relativePath;
+    
+        if (($category === 'misc' && (empty($firstDir) || $firstDir === 'misc')) || $firstDir === $category) {
+            return true;
         }
-
-        $filePath = $file->getPathname();
-        $relativePath = str_replace($directory, '', $filePath);
-
-        $firstDirComponent = strstr($relativePath, '/', true);
-
-        if (false === $firstDirComponent) {
-            return false;
-        }
-
-        $firstDir = trim($firstDirComponent, '/');
-
-        return ('misc' === $category && (empty($firstDir) || 'misc' === $firstDir)) || $firstDir === $category;
+    
+        return false;
     }
 
     /**

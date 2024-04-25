@@ -37,10 +37,12 @@ abstract class AbstractController
     /**
      * Renders the footer with dynamic copyright information based on the post dates or a specific year if provided.
      *
-     * @param string|null $year the specific year for the post page, null for the main page
+     * @param string|null $year the specific year for the post page or null.
      */
     public function renderFooter(?string $year = null): void
     {
+        echo Config::get()->showPoweredBy ? "\n\n\n\n" : "\n\n\n";
+        
         if (null === $year) {
             $dateRange = $this->postRepository->getPostYearsRange();
             $copyrightText = TextUtils::formatCopyrightText($dateRange);
@@ -62,7 +64,7 @@ abstract class AbstractController
     /**
      * Sets the content type header.
      *
-     * @param ContentType $contentType enum
+     * @param ContentType $contentType enum.
      */
     public function setHeaders(ContentType $contentType): void
     {

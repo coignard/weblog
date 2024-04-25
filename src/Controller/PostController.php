@@ -6,6 +6,7 @@ namespace Weblog\Controller;
 
 use Weblog\Config;
 use Weblog\Controller\Abstract\AbstractController;
+use Weblog\Exception\NotFoundException;
 use Weblog\Model\Entity\Post;
 use Weblog\Model\PostCollection;
 use Weblog\Model\Enum\ShowUrls;
@@ -57,8 +58,6 @@ final class PostController extends AbstractController
                 echo "\n\n\n\n";
             }
         }
-
-        echo Config::get()->showPoweredBy ? "\n\n\n\n" : "\n\n\n";
     }
 
     /**
@@ -112,7 +111,6 @@ final class PostController extends AbstractController
     {
         echo "\n\n\n";
         $this->renderPost($post);
-        echo Config::get()->showPoweredBy ? "\n\n\n\n" : "\n\n\n";
         $this->renderFooter($post->getDate()->format('Y'));
     }
 
@@ -123,14 +121,10 @@ final class PostController extends AbstractController
      */
     public function renderPostsByCategory(string $category): void
     {
-        if (false === Validator::isValidCategoryPath($category)) {
-            $this->handleNotFound();
-        }
-
         $posts = $this->postRepository->fetchPostsByCategory($category);
 
         if ($posts->isEmpty()) {
-            $this->handleNotFound();
+            throw new NotFoundException('No posts found for the given category.');
         }
 
         echo "\n\n\n\n";
@@ -148,16 +142,13 @@ final class PostController extends AbstractController
         list($date, $precision) = StringUtils::extractDateFromPath($datePath);
 
         if (null === $date) {
-            $this->handleNotFound();
-            return;
+            throw new NotFoundException('Invalid date format. Please use yyyy/mm/dd, yyyy/mm, or yyyy.');
         }
     
-
         $posts = $this->postRepository->fetchPostsByDate($date, $precision);
     
         if ($posts->isEmpty()) {
-            $this->handleNotFound();
-            return;
+            throw new NotFoundException('No posts found for the given date.');
         }
         $this->renderPosts($posts, false, true);
         $this->renderFooter($date->format('Y'));
@@ -172,9 +163,7 @@ final class PostController extends AbstractController
         $posts = $this->postRepository->fetchAllPosts();
 
         if ($posts->isEmpty()) {
-            $this->handleNotFound();
-
-            return;
+            throw new NotFoundException('No posts found.');
         }
 
         $randomPost = $posts->getRandomPost();

@@ -143,7 +143,6 @@ final class PostCollection implements \IteratorAggregate, \Countable
     public function filter(callable $callback): PostCollection
     {
         $filteredPosts = array_filter($this->posts, $callback);
-        
         return new self($filteredPosts);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Weblog\Controller;
 
 use Weblog\Controller\Abstract\AbstractController;
+use Weblog\Exception\NotFoundException;
 use Weblog\Model\Enum\ContentType;
 use Weblog\Utils\FeedGenerator;
 
@@ -35,7 +36,7 @@ final class FeedController extends AbstractController
         $posts = $this->postRepository->fetchAllPosts();
 
         if ($posts->isEmpty()) {
-            $this->handleNotFound();
+            throw new NotFoundException('No posts found.');
         }
 
         $rss = FeedGenerator::generateRSS($posts);
@@ -48,14 +49,14 @@ final class FeedController extends AbstractController
     /**
      * Renders an RSS feed for the given category.
      *
-     * @param string $category the category to filter by
+     * @param string $category the category to filter by.
      */
     public function renderRSSByCategory(string $category): void
     {
         $posts = $this->postRepository->fetchPostsByCategory($category);
 
         if ($posts->isEmpty()) {
-            $this->handleNotFound();
+            throw new NotFoundException('No posts found for the given category.');
         }
 
         $rss = FeedGenerator::generateRSS($posts);

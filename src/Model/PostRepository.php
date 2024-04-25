@@ -19,7 +19,6 @@ final class PostRepository
      */
     public function __construct(private string $directory)
     {
-        $this->setDirectory($directory);
         $this->loadIterator();
     }
 

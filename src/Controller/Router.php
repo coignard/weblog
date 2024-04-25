@@ -25,13 +25,18 @@ final class Router
 
         $requestedRoute = Route::tryFrom($routeKey) ?? $routeKey;
 
-        match ($requestedRoute) {
-            Route::HOME => $this->postController->renderHome(),
-            Route::SITEMAP => $this->feedController->renderSitemap(),
-            Route::RSS => $this->feedController->renderRSS(),
-            Route::RANDOM => $this->postController->renderRandomPost(),
-            default => $this->handleDynamicRoute($routeKey),
-        };
+        try {
+            match ($requestedRoute) {
+                Route::HOME => $this->postController->renderHome(),
+                Route::SITEMAP => $this->feedController->renderSitemap(),
+                Route::RSS => $this->feedController->renderRSS(),
+                Route::RANDOM => $this->postController->renderRandomPost(),
+                default => $this->handleDynamicRoute($routeKey),
+            };
+        } catch (\Exception $e) {
+            $this->postController->handleNotFound($e->getMessage());
+        }   
+        
     }
 
     /**

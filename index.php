@@ -26,8 +26,6 @@ declare(strict_types=1);
  * SOFTWARE.
  */
 
-namespace App;
-
 require_once './autoload.php';
 
 use Weblog\Utils\Factory;
