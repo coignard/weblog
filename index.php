@@ -27,7 +27,7 @@
 class Weblog {
     private static $config = [];
     private static $rewrites = [];
-    private const VERSION = '1.8.2';
+    private const VERSION = '1.8.3';
     private const CONFIG_PATH = __DIR__ . '/config.ini';
     private const DEFAULT_LINE_WIDTH = 72;
     private const DEFAULT_PREFIX_LENGTH = 3;
@@ -324,7 +324,7 @@ class Weblog {
         $category = (count($pathParts) > 1) ? ucfirst($pathParts[0]) : "Misc";
 
         $title = basename($file->getFilename(), '.txt');
-        $date = date("d F Y", $file->getMTime());
+        $date = date("j F Y", $file->getMTime());
 
         if (self::$config['show_category'] && self::$config['show_date']) {
             $header = self::formatPostHeader($title, $category, $date);
