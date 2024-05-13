@@ -91,7 +91,7 @@ final class PostController extends AbstractController
      */
     public function renderPost(Post $post, bool $showUrls = false): void
     {
-        $date = $post->getDate()->format('d F Y');
+        $date = $post->getDate()->format('j F Y');
 
         $header = ContentFormatter::formatPostHeader($post->getTitle(), $post->getCategory(), $date);
         echo $header."\n\n\n";
