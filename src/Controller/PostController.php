@@ -124,7 +124,7 @@ final class PostController extends AbstractController
         $posts = $this->postRepository->fetchPostsByCategory($category);
 
         if ($posts->isEmpty()) {
-            throw new NotFoundException('No posts found for the given category.');
+            throw new NotFoundException();
         }
 
         echo "\n\n\n\n";
@@ -142,13 +142,13 @@ final class PostController extends AbstractController
         [$date, $precision] = StringUtils::extractDateFromPath($datePath);
 
         if (null === $date) {
-            throw new NotFoundException('Invalid date format. Please use yyyy/mm/dd, yyyy/mm, or yyyy.');
+            throw new NotFoundException();
         }
 
         $posts = $this->postRepository->fetchPostsByDate($date, $precision);
 
         if ($posts->isEmpty()) {
-            throw new NotFoundException('No posts found for the given date.');
+            throw new NotFoundException();
         }
         $this->renderPosts($posts, false, true);
         $this->renderFooter($date->format('Y'));
@@ -162,7 +162,7 @@ final class PostController extends AbstractController
         $posts = $this->postRepository->fetchAllPosts();
 
         if ($posts->isEmpty()) {
-            throw new NotFoundException('No posts found.');
+            throw new NotFoundException();
         }
 
         $randomPost = $posts->getRandomPost();

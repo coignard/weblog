@@ -32,8 +32,8 @@ final class Router
                 Route::RANDOM => $this->postController->renderRandomPost(),
                 default => $this->handleDynamicRoute($routeKey),
             };
-        } catch (\Exception $e) {
-            $this->postController->handleNotFound($e->getMessage());
+        } catch (\Exception) {
+            $this->postController->handleNotFound();
         }
     }
 

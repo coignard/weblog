@@ -21,7 +21,7 @@ abstract class AbstractController
     /**
      * Handles the "Not Found" response with a randomized easter egg.
      */
-    public function handleNotFound(string $message = "404 Not Found\n"): void
+    public function handleNotFound(): void
     {
         http_response_code(404);
 
@@ -31,7 +31,7 @@ abstract class AbstractController
             return;
         }
 
-        echo $message;
+        echo "404 Not Found\n";
     }
 
     /**

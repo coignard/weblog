@@ -36,7 +36,7 @@ final class FeedController extends AbstractController
         $posts = $this->postRepository->fetchAllPosts();
 
         if ($posts->isEmpty()) {
-            throw new NotFoundException('No posts found.');
+            throw new NotFoundException();
         }
 
         $rss = FeedGenerator::generateRSS($posts);
@@ -56,7 +56,7 @@ final class FeedController extends AbstractController
         $posts = $this->postRepository->fetchPostsByCategory($category);
 
         if ($posts->isEmpty()) {
-            throw new NotFoundException('No posts found for the given category.');
+            throw new NotFoundException();
         }
 
         $rss = FeedGenerator::generateRSS($posts);
