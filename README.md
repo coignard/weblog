@@ -67,7 +67,17 @@ server {
         rewrite ^/sitemap.xml$ /index.php?go=sitemap.xml last;
     }
 
-    location ~* ^/config\.ini$ {
+    location = /config.ini {
+        deny all;
+        return 404;
+    }
+
+    location = /autoload.php {
+        deny all;
+        return 404;
+    }
+
+    location ~* ^/src/(.*) {
         deny all;
         return 404;
     }
