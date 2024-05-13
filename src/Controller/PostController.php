@@ -32,10 +32,10 @@ final class PostController extends AbstractController
      * Displays posts.
      *
      * @param PostCollection $posts         defaults to all
-     * @param bool           $showUrls      indicates if we should append URLs to each post
+     * @param string         $showUrls      indicates if we should append URLs to each post
      * @param bool           $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
      */
-    public function renderPosts(?PostCollection $posts = null, bool $showUrls = false, bool $isPostNewline = false): void
+    public function renderPosts(?PostCollection $posts = null, string $showUrls = 'Full', bool $isPostNewline = false): void
     {
         if (null === $posts) {
             $posts = $this->postRepository->fetchAllPosts();
@@ -87,9 +87,9 @@ final class PostController extends AbstractController
     /**
      * Renders a single post, including its header, content, and optionally a URL.
      *
-     * @param bool $showUrls indicates if we should append URLs to each post
+     * @param string $showUrls indicates if we should append URLs to each post
      */
-    public function renderPost(Post $post, bool $showUrls = false): void
+    public function renderPost(Post $post, string $showUrls = 'Full'): void
     {
         $date = $post->getDate()->format('j F Y');
 
@@ -98,7 +98,7 @@ final class PostController extends AbstractController
 
         echo ContentFormatter::formatPostContent($post->getContent());
 
-        if ($showUrls && ShowUrls::FULL === Config::get()->showUrls) {
+        if ($showUrls && (ShowUrls::FULL === Config::get()->showUrls | ShowUrls::SHORT === Config::get()->showUrls)) {
             $url = StringUtils::formatUrl($post->getSlug());
             echo "\n   ".$url."\n\n";
         }
