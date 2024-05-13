@@ -150,7 +150,7 @@ final class PostController extends AbstractController
         if ($posts->isEmpty()) {
             throw new NotFoundException();
         }
-        $this->renderPosts($posts, false, true);
+        $this->renderPosts($posts, 'Off', true);
         $this->renderFooter($date->format('Y'));
     }
 

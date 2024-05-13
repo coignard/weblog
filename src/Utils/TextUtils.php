@@ -44,11 +44,12 @@ final class TextUtils
         $result = '';
 
         foreach ($words as $word) {
-            if (mb_strlen($line.$word) > $lineWidth) {
+            $trimWord = mb_strlen(rtrim($line, ' ')) + mb_strlen($word);
+            if ($trimWord <= $lineWidth || ($trimWord === $lineWidth + 1 && preg_match('/(?<!\.)\.$/', $line))) {
+                $line .= $word.' ';
+            } else {
                 $result .= rtrim($line)."\n";
                 $line = $linePrefix.$word.' ';
-            } else {
-                $line .= $word.' ';
             }
         }
 
