@@ -11,7 +11,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.9.1';
+    private const VERSION = '1.9.2';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -84,7 +84,7 @@ final class Config
         $this->domain = $this->getString('domain') ?? $this->domain;
         $this->url = rtrim($protocol.$this->getString('domain'), '/');
         $this->showPoweredBy = $this->getBool('show_powered_by') ?? $this->showPoweredBy;
-        $this->showUrls = ShowUrls::tryFrom($this->getString('show_urls') ?? '') ?? $this->showUrls;
+        $this->showUrls = ShowUrls::tryFrom(is_bool($this->getString('show_urls')) ? ShowUrls::OFF->value : ($this->getString('show_urls') ?? '')) ?? ShowUrls::OFF;
         $this->showCategory = $this->getBool('show_category') ?? $this->showCategory;
         $this->showDate = $this->getBool('show_date') ?? $this->showDate;
         $this->showCopyright = $this->getBool('show_copyright') ?? $this->showCopyright;
