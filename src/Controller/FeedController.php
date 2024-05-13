@@ -18,14 +18,17 @@ final class FeedController extends AbstractController
     public function renderSitemap(): void
     {
         $posts = $this->postRepository->fetchAllPosts();
-
         $posts->sort();
-
         $siteMap = FeedGenerator::generateSiteMap($posts);
 
-        $this->setHeaders(ContentType::XML);
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
 
-        echo $siteMap->asXML();
+        $dom->loadXML($siteMap->asXML());
+
+        $this->setHeaders(ContentType::XML);
+        echo $dom->saveXML();
     }
 
     /**
@@ -34,16 +37,20 @@ final class FeedController extends AbstractController
     public function renderRSS(): void
     {
         $posts = $this->postRepository->fetchAllPosts();
-
         if ($posts->isEmpty()) {
             throw new NotFoundException();
         }
-
         $rss = FeedGenerator::generateRSS($posts);
+
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+
+        $dom->loadXML($rss->asXML());
 
         $this->setHeaders(ContentType::XML);
 
-        echo $rss->asXML();
+        echo $dom->saveXML();
     }
 
     /**
@@ -54,15 +61,19 @@ final class FeedController extends AbstractController
     public function renderRSSByCategory(string $category): void
     {
         $posts = $this->postRepository->fetchPostsByCategory($category);
-
         if ($posts->isEmpty()) {
             throw new NotFoundException();
         }
-
         $rss = FeedGenerator::generateRSS($posts);
+
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+
+        $dom->loadXML($rss->asXML());
 
         $this->setHeaders(ContentType::XML);
 
-        echo $rss->asXML();
+        echo $dom->saveXML();
     }
 }
