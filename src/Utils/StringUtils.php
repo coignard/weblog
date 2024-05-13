@@ -35,7 +35,7 @@ final class StringUtils
         }
 
         $title = iconv('UTF-8', 'ASCII//TRANSLIT', $title) ?: '';
-        $title = preg_replace('/[^a-z0-9\s-]/', '-', $title) ?: '';
+        $title = preg_replace('/[^a-z0-9\s-]/', '', $title) ?: '';
         $title = preg_replace('/\s+/', '-', $title ?: '');
 
         if (null === $title) {
