@@ -2,7 +2,7 @@
 
 A minimalistic, plain text-based blog engine written in PHP, inspired by the simplicity and structure of RFC format. It's designed to display content as plain text, keeping it simple, light, and easy to set up, with no need for a database.
 
-[![Weblog](https://github.com/coignard/weblog/assets/119790348/1158f1ea-8357-4879-8007-1bbf465d3f9c)](https://renecoignard.com/weblog/)
+[![Weblog](https://github.com/coignard/weblog/assets/119790348/aea837d6-27c8-4f28-a4ff-ebafc4c4e3ae)](https://renecoignard.com/motherfucking-blog/)
 
 ## Demo
 
