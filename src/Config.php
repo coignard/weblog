@@ -11,7 +11,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.9.3';
+    private const VERSION = '1.9.4';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -111,7 +111,7 @@ final class Config
         if (isset($this->config['about_text_alt'])) {
             $this->author->setAbout(
                 StringUtils::sanitizeText(
-                    $this->getString($this->config['about_text_alt']) ?? $this->author->getAbout()
+                    $this->getString('about_text_alt') ?? $this->author->getAbout()
                 )
             );
         }
