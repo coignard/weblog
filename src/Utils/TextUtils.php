@@ -44,16 +44,19 @@ final class TextUtils
         $result = '';
 
         foreach ($words as $word) {
-            $trimWord = mb_strlen(rtrim($line, ' ')) + mb_strlen($word);
-            if ($trimWord <= $lineWidth || ($trimWord === $lineWidth + 1 && preg_match('/(?<!\.)\.$/', $line))) {
-                $line .= $word.' ';
-            } else {
+            if (mb_strlen($line.$word) > $lineWidth) {
                 $result .= rtrim($line)."\n";
                 $line = $linePrefix.$word.' ';
+            } else {
+                $line .= $word.' ';
             }
         }
 
-        return $result.rtrim($line);
+        $result .= rtrim($line);
+
+        $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
+
+        return $result;
     }
 
     /**
