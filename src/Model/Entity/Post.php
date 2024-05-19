@@ -34,10 +34,13 @@ final class Post
      */
     public static function createFromFile(\SplFileInfo $file): self
     {
+        $date = new \DateTimeImmutable('@'.$file->getMTime());
+        $date = $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+
         return new self(
             title: basename($file->getFilename(), '.txt'),
             path: $file->getPathname(),
-            date: new \DateTimeImmutable('@'.$file->getMTime()),
+            date: $date,
         );
     }
 
