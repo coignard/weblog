@@ -65,7 +65,7 @@ final class FeedGenerator
         self::appendXmlElement($channel, 'title', Config::get()->author->getName().$titleSuffix);
         self::appendXmlElement($channel, 'link', Config::get()->url.'/');
         self::appendAtomLink($channel, Config::get()->url.'/rss/');
-        self::appendXmlElement($channel, 'description', Config::get()->author->getAbout());
+       	self::appendXmlElement($channel, 'description', preg_split('/\r\n|\r|\n/', Config::get()->author->getAbout())[0] ?? '');
         self::appendXmlElement($channel, 'language', 'en');
         self::appendXmlElement($channel, 'generator', 'Weblog v'.Config::get()->version);
         self::appendXmlElement($channel, 'lastBuildDate', $lastmodDate->format(DATE_RSS));
