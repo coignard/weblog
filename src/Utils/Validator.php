@@ -53,7 +53,7 @@ final class Validator
 
         $firstDir = strstr($relativePath, '/', true) ?: $relativePath;
 
-        if (('misc' === $category && (empty($firstDir) || 'misc' === $firstDir)) || $firstDir === $category) {
+        if (('misc' === $category && (empty($firstDir) || 'misc' === $firstDir || $relativePath === $firstDir)) || $firstDir === $category) {
             return true;
         }
 
