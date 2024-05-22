@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Weblog\Utils;
 
 use Weblog\Config;
+use Weblog\Model\Enum\Beautify;
 
 final class ContentFormatter
 {
@@ -26,6 +27,10 @@ final class ContentFormatter
                 $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
             }
             $formattedContent .= TextUtils::formatParagraph($formattedParagraph ?? '')."\n";
+        }
+
+        if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT])) {
+            $formattedContent = StringUtils::beautifyText($formattedContent);
         }
 
         return $formattedContent;

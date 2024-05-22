@@ -96,7 +96,7 @@ final class TextUtils
         $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
 
         if (Validator::isMobileDevice() && ($centerWidth % 2) !== 0) {
-            $spaceToLeft += 2;
+            $spaceToLeft += 1;
         }
 
         return "\n\n\n\n".sprintf(

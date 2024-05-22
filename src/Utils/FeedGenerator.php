@@ -7,6 +7,7 @@ namespace Weblog\Utils;
 use Weblog\Config;
 use Weblog\Model\Entity\Post;
 use Weblog\Model\PostCollection;
+use Weblog\Model\Enum\Beautify;
 
 final class FeedGenerator
 {
@@ -65,7 +66,7 @@ final class FeedGenerator
         self::appendXmlElement($channel, 'title', Config::get()->author->getName().$titleSuffix);
         self::appendXmlElement($channel, 'link', Config::get()->url.'/');
         self::appendAtomLink($channel, Config::get()->url.'/rss/');
-       	self::appendXmlElement($channel, 'description', preg_split('/\r\n|\r|\n/', Config::get()->author->getAbout())[0] ?? '');
+        self::appendXmlElement($channel, 'description', preg_split('/\r\n|\r|\n/', Config::get()->author->getAbout())[0] ?? '');
         self::appendXmlElement($channel, 'language', 'en');
         self::appendXmlElement($channel, 'generator', 'Weblog v'.Config::get()->version);
         self::appendXmlElement($channel, 'lastBuildDate', $lastmodDate->format(DATE_RSS));
@@ -140,7 +141,12 @@ final class FeedGenerator
             self::appendXmlElement($item, 'link', Config::get()->url.'/'.$post->getSlug().'/');
             self::appendXmlElement($item, 'pubDate', $post->getFormattedDate(DATE_RSS));
             self::appendXmlElement($item, 'category', $post->getCategory());
-            self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($post->getContent()));
+
+            if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::RSS])) {
+                self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent(StringUtils::beautifyText($post->getContent())));
+            } else {
+                self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($post->getContent()));
+            }
         }
     }
 }
