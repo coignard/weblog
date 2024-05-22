@@ -136,6 +136,10 @@ final class FeedGenerator
             $title = $post->getTitle();
             $title = ('~' === substr($title, 0, 1)) ? '* * *' : $title;
 
+            if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::RSS])) {
+                $title = StringUtils::beautifyText($title);
+            }
+
             self::appendXmlElement($item, 'title', $title);
             self::appendXmlElement($item, 'guid', $posts->getPostIndex($post), ['isPermaLink' => 'false']);
             self::appendXmlElement($item, 'link', Config::get()->url.'/'.$post->getSlug().'/');

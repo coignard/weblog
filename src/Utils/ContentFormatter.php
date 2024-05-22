@@ -52,6 +52,10 @@ final class ContentFormatter
             $title = '* * *';
         }
 
+        if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT])) {
+            $title = StringUtils::beautifyText($title);
+        }
+
         $lineWidth = Config::get()->lineWidth;
         $includeCategory = Config::get()->showCategory && !empty($category);
         $includeDate = Config::get()->showDate && !empty($date);
