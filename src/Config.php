@@ -6,12 +6,13 @@ namespace Weblog;
 
 use Weblog\Model\Entity\Author;
 use Weblog\Model\Enum\ShowUrls;
+use Weblog\Model\Enum\Beautify;
 use Weblog\Utils\StringUtils;
 use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.10.0';
+    private const VERSION = '1.11.0';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -39,6 +40,7 @@ final class Config
         public bool $showSeparator = false,
         public bool $capitalizeTitles = false,
         public array $rewrites = [],
+        public Beautify $beautify = Beautify::OFF,
     ) {
         $this->loadConfig();
     }
@@ -90,6 +92,7 @@ final class Config
         $this->showCopyright = $this->getBool('show_copyright') ?? $this->showCopyright;
         $this->showSeparator = $this->getBool('show_separator') ?? $this->showSeparator;
         $this->capitalizeTitles = $this->getBool('capitalize_titles') ?? $this->capitalizeTitles;
+        $this->beautify = Beautify::tryFrom(is_bool($this->getString('beautify')) ? Beautify::OFF->value : ($this->getString('beautify') ?? '')) ?? Beautify::OFF;
 
         $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 
@@ -102,7 +105,7 @@ final class Config
             return;
         }
 
-        $this->lineWidth = (int) ($this->lineWidth / 2) - 1;
+        $this->lineWidth = (int) ($this->lineWidth / 2) + 7;
         $this->showCategory = false;
         $this->showDate = false;
         $this->showCopyright = false;

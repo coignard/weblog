@@ -32,7 +32,7 @@ final class PostController extends AbstractController
      * Displays posts.
      *
      * @param PostCollection $posts         defaults to all
-     * @param string         $showUrls      indicates if we should append URLs to each post
+     * @param bool           $showUrls      indicates if we should append URLs to each post
      * @param bool           $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
      */
     public function renderPosts(?PostCollection $posts = null, string $showUrls = 'Full', bool $isPostNewline = false): void
@@ -87,7 +87,7 @@ final class PostController extends AbstractController
     /**
      * Renders a single post, including its header, content, and optionally a URL.
      *
-     * @param string $showUrls indicates if we should append URLs to each post
+     * @param bool $showUrls indicates if we should append URLs to each post
      */
     public function renderPost(Post $post, string $showUrls = 'Full'): void
     {

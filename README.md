@@ -42,6 +42,11 @@ Edit the `config.ini` file in the root directory to setup your weblog:
   - `Off`: Do not show any URLs next to the posts.
   - `Short`: Display only the relative path of the post.
   - `Full`: Display the full URL, including the domain, for each post.
+- `beautify`: Determines if text content should be beautified with typographic replacements (default: `Off`). Options are:
+  - `Off`: No beautification.
+  - `All`: Beautify both RSS content and post content.
+  - `Content`: Beautify only post content.
+  - `RSS`: Beautify only RSS content.
 - More detailed configuration options are described in the `config.example.ini`.
 
 ### Web Server Setup

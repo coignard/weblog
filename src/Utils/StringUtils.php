@@ -167,11 +167,38 @@ final class StringUtils
         return [false === $date ? null : $date, $precision];
     }
 
+    /**
+     * Capitalizes the provided text.
+     *
+     * @param string $text the text to possibly capitalize
+     *
+     * @return string the processed text, capitalized if the setting is enabled
+     */
     public static function capitalizeText(string $text): string
     {
         if (Config::get()->capitalizeTitles) {
             return mb_strtoupper($text, 'UTF-8');
         }
+
+        return $text;
+    }
+
+    /**
+     * Beautifies the provided text by applying several transformations.
+     *
+     * @param string $text the text to beautify
+     *
+     * @return string the beautified text
+     */
+    public static function beautifyText(string $text): string
+    {
+        $prefixLength = Config::get()->prefixLength + 2;
+        $prefixPattern = str_repeat(' ', $prefixLength);
+
+        $text = preg_replace('/"([^"]*)"/', '“$1”', $text);
+        $text = preg_replace('/^' . $prefixPattern . '\- /m', $prefixPattern . '• ', $text);
+        $text = str_replace(' - ', ' — ', $text);
+        $text = str_replace("'", "’", $text);
 
         return $text;
     }
