@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Weblog\Utils;
 
 use Weblog\Config;
+use Weblog\Model\Enum\Beautify;
 
 final class TextUtils
 {
@@ -196,7 +197,8 @@ final class TextUtils
             $linePrefix .= $index . '.  ';
             $itemText = trim(substr($item, strlen((string)$index) + 1));
         } else {
-            $linePrefix .= '•  ';
+            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '•' : '-';
+            $linePrefix .= $bullet . '  ';
             $itemText = trim(substr($item, 2));
         }
 
