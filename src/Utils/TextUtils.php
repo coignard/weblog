@@ -28,6 +28,195 @@ final class TextUtils
     }
 
     /**
+     * Formats a quote block.
+     *
+     * @param string $text The text to be formatted as a quote.
+     *
+     * @return string The formatted quote.
+     */
+    public static function formatQuote(string $text): string
+    {
+        $lines = explode("\n", $text);
+        $formattedText = '';
+        $insideQuote = false;
+        $quoteContent = '';
+
+        foreach ($lines as $line) {
+            $trimmedLine = ltrim($line);
+
+            if (str_starts_with($trimmedLine, '>')) {
+                if (!$insideQuote) {
+                    $insideQuote = true;
+                    $quoteContent .= ltrim(substr($trimmedLine, 1));
+                } else {
+                    $quoteContent .= "\n" . ltrim(substr($trimmedLine, 1));
+                }
+            } else {
+                if ($insideQuote) {
+                    $insideQuote = false;
+
+                    $quoteLines = explode("\n", trim($quoteContent));
+                    if (count($quoteLines) === 1) {
+                        $singleQuote = trim($quoteLines[0]);
+                        $singleQuote = '“' . $singleQuote . '”';
+                        $quoteContent = TextUtils::centerText($singleQuote);
+                    } else {
+                        $quoteContent = self::formatQuoteText($quoteContent);
+                    }
+
+                    $formattedText .= "\n" . $quoteContent . "\n";
+                    $quoteContent = '';
+                }
+                $formattedText .= self::formatParagraph($line) . "\n";
+            }
+        }
+
+        if ($insideQuote) {
+            $quoteLines = explode("\n", trim($quoteContent));
+            if (count($quoteLines) === 1) {
+                $singleQuote = trim($quoteLines[0]);
+                $singleQuote = '“' . $singleQuote . '”';
+                $quoteContent = TextUtils::centerText($singleQuote);
+            } else {
+                $quoteContent = self::formatQuoteText($quoteContent);
+            }
+
+            $formattedText .= $quoteContent;
+        }
+
+        return rtrim($formattedText);
+    }
+
+    /**
+     * Formats the text of a quote block.
+     *
+     * @param string $text The raw text of the quote.
+     *
+     * @return string The formatted quote text.
+     */
+    public static function formatQuoteText(string $text): string
+    {
+        $lineWidth = Config::get()->lineWidth;
+        $prefix = str_repeat(' ', Config::get()->prefixLength) . '|  ';
+        $lines = explode("\n", wordwrap(trim($text), $lineWidth - Config::get()->prefixLength - 4));
+
+        $formattedText = '';
+        foreach ($lines as $line) {
+            $formattedText .= $prefix . $line . "\n";
+        }
+
+        return rtrim($formattedText);
+    }
+
+    /**
+     * Formats a list block.
+     *
+     * @param string $text The text to be formatted as a list.
+     *
+     * @return string The formatted list.
+     */
+    public static function formatList(string $text): string
+    {
+        $lines = explode("\n", $text);
+        $formattedText = '';
+        $insideList = false;
+        $listContent = '';
+        $listType = '';
+        $listIndex = 1;
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            if (preg_match('/^(\d+)\.\s/', $trimmedLine, $matches)) {
+                if ($listType === 'ul') {
+                    $formattedText .= "\n" . $listContent . "\n";
+                    $listContent = '';
+                    $listType = '';
+                    $listIndex = 1;
+                }
+
+                $listType = 'ol';
+                if (!$insideList) {
+                    $insideList = true;
+                    $listContent .= self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
+                } else {
+                    $listContent .= "\n" . self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
+                }
+                $listIndex++;
+            } elseif (preg_match('/^- /', $trimmedLine)) {
+                if ($listType === 'ol') {
+                    $formattedText .= "\n" . $listContent . "\n";
+                    $listContent = '';
+                    $listType = '';
+                    $listIndex = 1;
+                }
+
+                $listType = 'ul';
+                if (!$insideList) {
+                    $insideList = true;
+                    $listContent .= self::formatListItem($trimmedLine, $listType);
+                } else {
+                    $listContent .= "\n" . self::formatListItem($trimmedLine, $listType);
+                }
+            } else {
+                if ($insideList) {
+                    $insideList = false;
+                    $formattedText .= "\n" . $listContent . "\n";
+                    $listContent = '';
+                    $listType = '';
+                    $listIndex = 1;
+                }
+                $formattedText .= TextUtils::formatParagraph($trimmedLine) . "\n";
+            }
+        }
+
+        if ($insideList) {
+            $formattedText .= $listContent;
+        }
+
+        return rtrim($formattedText);
+    }
+
+    /**
+     * Formats a list item.
+     *
+     * @param string $item The text of the list item.
+     * @param string $listType The type of the list ('ol' for ordered, 'ul' for unordered).
+     * @param int $index The index of the list item (only for ordered lists).
+     *
+     * @return string The formatted list item.
+     */
+    public static function formatListItem(string $item, string $listType, int $index = 1): string
+    {
+        $lineWidth = Config::get()->lineWidth;
+        $prefixLength = Config::get()->prefixLength;
+        $linePrefix = str_repeat(' ', $prefixLength);
+
+        if ($listType === 'ol') {
+            $linePrefix .= $index . '.  ';
+            $itemText = trim(substr($item, strlen((string)$index) + 1));
+        } else {
+            $linePrefix .= '•  ';
+            $itemText = trim(substr($item, 2));
+        }
+
+        $words = explode(' ', $itemText);
+        $line = $linePrefix;
+        $result = '';
+
+        foreach ($words as $word) {
+            if (mb_strlen($line . $word) > $lineWidth) {
+                $result .= rtrim($line) . "\n";
+                $line = str_repeat(' ', mb_strlen($linePrefix)) . $word . ' ';
+            } else {
+                $line .= $word . ' ';
+            }
+        }
+
+        return $result . rtrim($line);
+    }
+
+    /**
      * Formats a paragraph to fit within the configured line width, using a specified prefix length.
      *
      * @param string $text the text of the paragraph

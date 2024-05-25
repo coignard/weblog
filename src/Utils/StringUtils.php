@@ -196,7 +196,7 @@ final class StringUtils
         $prefixPattern = str_repeat(' ', $prefixLength);
 
         $text = preg_replace('/"([^"]*)"/', '“$1”', $text);
-        $text = preg_replace('/^' . $prefixPattern . '\- /m', $prefixPattern . ' •  ', $text);
+        //$text = preg_replace('/^' . $prefixPattern . '\- /m', $prefixPattern . '•  ', $text);
         $text = str_replace(' - ', ' — ', $text);
         $text = str_replace(' -', ' —', $text);
         $text = str_replace("'", "’", $text);
