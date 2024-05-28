@@ -197,7 +197,7 @@ final class TextUtils
             $linePrefix .= $index . '.  ';
             $itemText = trim(substr($item, strlen((string)$index) + 1));
         } else {
-            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '•' : '-';
+            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '  •' : '  -';
             $linePrefix .= $bullet . '  ';
             $itemText = trim(substr($item, 2));
         }
@@ -286,7 +286,7 @@ final class TextUtils
         $spaceToLeft = (int) (($lineWidth - $centerWidth) / 2);
         $spaceToRight = $lineWidth - $spaceToLeft - $centerWidth;
 
-        if (Validator::isMobileDevice() && ($centerWidth % 2) !== 0) {
+        if (Validator::isMobileDevice()) {
             $spaceToLeft += 1;
         }
 

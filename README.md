@@ -104,6 +104,9 @@ server {
         rewrite "^/(\d{4})/(\d{2})$" /$1/$2/ permanent;
         rewrite "^/(\d{4})/(\d{2})/(\d{2})$" /$1/$2/$3/ permanent;
         rewrite ^/rss/([\w-]+)$ /rss/$1/ permanent;
+        rewrite ^/latest$ /latest/ permanent;
+        rewrite ^/latest/([^/]+)$ /latest/$1/ permanent;
+        rewrite ^/search/(.*)/?$ /index.php?go=search/$1 last;
         rewrite ^/(.*)/$ /index.php?go=$1 last;
     }
 

@@ -76,8 +76,8 @@ final class ContentFormatter
         $titlePaddingLeft = (int) (($titleWidth - mb_strlen($title)) / 2);
         $titlePaddingRight = $titleWidth - mb_strlen($title) - $titlePaddingLeft;
 
-        if (Validator::isMobileDevice() && ($titleWidth % 2) !== 0) {
-            $titlePaddingLeft += 2;
+        if (Validator::isMobileDevice()) {
+            $titlePaddingLeft += 1;
         }
 
         $formattedTitle = str_repeat(' ', $titlePaddingLeft).$title.str_repeat(' ', $titlePaddingRight);

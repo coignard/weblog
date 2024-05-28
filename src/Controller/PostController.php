@@ -98,7 +98,7 @@ final class PostController extends AbstractController
 
         echo ContentFormatter::formatPostContent($post->getContent());
 
-        if ($showUrls && (ShowUrls::FULL === Config::get()->showUrls | ShowUrls::SHORT === Config::get()->showUrls)) {
+        if ($showUrls && (ShowUrls::FULL === 'Off' | ShowUrls::SHORT === 'Off')) {
             $url = StringUtils::formatUrl($post->getSlug());
             echo "\n   ".$url."\n\n";
         }
@@ -167,5 +167,98 @@ final class PostController extends AbstractController
 
         $randomPost = $posts->getRandomPost();
         $this->renderFullPost($randomPost);
+    }
+
+    /**
+     * Renders the latest post.
+     */
+    public function renderLatestPost(): void
+    {
+        $posts = $this->postRepository->fetchAllPosts();
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $latestPost = $posts->getFirstPost();
+        $this->renderFullPost($latestPost);
+    }
+
+    /**
+     * Renders posts from the last year.
+     */
+    public function renderLatestYear(): void
+    {
+        $startOfYear = new \DateTimeImmutable('first day of January this year 00:00:00');
+        $today = new \DateTimeImmutable('now');
+
+        $posts = $this->postRepository->fetchPostsFromDateRange($startOfYear, $today);
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
+    }
+
+    /**
+     * Renders posts from the last month.
+     */
+    public function renderLatestMonth(): void
+    {
+        $startOfMonth = new \DateTimeImmutable('first day of this month 00:00:00');
+        $today = new \DateTimeImmutable('now');
+
+        $posts = $this->postRepository->fetchPostsFromDateRange($startOfMonth, $today);
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
+    }
+
+    /**
+     * Renders posts from the last week.
+     */
+    public function renderLatestWeek(): void
+    {
+        $today = new \DateTimeImmutable('now');
+        $startOfWeek = $today->modify('monday this week 00:00:00');
+        $endOfWeek = $today;
+
+        $posts = $this->postRepository->fetchPostsFromDateRange($startOfWeek, $endOfWeek);
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
+    }
+
+    /**
+     * Renders posts from the last day.
+     */
+    public function renderLatestDay(): void
+    {
+        $today = new \DateTimeImmutable('today 00:00:00');
+        $now = new \DateTimeImmutable('now');
+
+        $posts = $this->postRepository->fetchPostsFromDateRange($today, $now);
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
+    }
+
+    /**
+     * Renders search results.
+     *
+     * @param string $query the search query
+     */
+    public function renderSearchResults(string $query): void
+    {
+        $posts = $this->postRepository->searchPosts($query);
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
     }
 }

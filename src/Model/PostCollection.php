@@ -26,11 +26,19 @@ final class PostCollection implements \IteratorAggregate, \Countable
         $this->posts[] = $post;
     }
 
+    /**
+     * Sorts the posts in the collection by date, from newest to oldest.
+     */
     public function sort(): void
     {
         usort($this->posts, static fn ($a, $b) => $b->getDateTimestamp() - $a->getDateTimestamp());
     }
 
+    /**
+     * Checks if the post collection is empty.
+     *
+     * @return bool returns true if the collection is empty, false otherwise
+     */
     public function isEmpty(): bool
     {
         return [] === $this->posts;
@@ -100,6 +108,16 @@ final class PostCollection implements \IteratorAggregate, \Countable
         $randomIndex = array_rand($this->posts);
 
         return $this->posts[$randomIndex];
+    }
+
+    /**
+     * Returns the first post in the collection.
+     *
+     * @return Post|null returns the first Post object in the collection, or null if the collection is empty
+     */
+    public function getFirstPost(): ?Post
+    {
+        return $this->isEmpty() ? null : $this->posts[0];
     }
 
     /**

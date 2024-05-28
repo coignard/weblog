@@ -126,6 +126,73 @@ final class PostRepository
     }
 
     /**
+     * Fetches posts from a specific date.
+     *
+     * @param \DateTimeImmutable $date The date to start from
+     *
+     * @return PostCollection returns a collection of posts from the specified date
+     */
+    public function fetchPostsFromDate(\DateTimeImmutable $date): PostCollection
+    {
+        $posts = new PostCollection();
+        foreach ($this->iterator as $file) {
+            if ($file instanceof \SplFileInfo) {
+                $post = Post::createFromFile($file);
+                if ($post->getDate() >= $date) {
+                    $posts->add($post);
+                }
+            }
+        }
+        $posts->sort();
+        return $posts;
+    }
+
+    /**
+     * Fetches posts from a specific date range.
+     *
+     * @param \DateTimeImmutable $startDate The start date of the range
+     * @param \DateTimeImmutable $endDate The end date of the range
+     *
+     * @return PostCollection returns a collection of posts from the specified date range
+     */
+    public function fetchPostsFromDateRange(\DateTimeImmutable $startDate, \DateTimeImmutable $endDate): PostCollection
+    {
+        $posts = new PostCollection();
+        foreach ($this->iterator as $file) {
+            if ($file instanceof \SplFileInfo) {
+                $post = Post::createFromFile($file);
+                if ($post->getDate() >= $startDate && $post->getDate() <= $endDate) {
+                    $posts->add($post);
+                }
+            }
+        }
+        $posts->sort();
+        return $posts;
+    }
+
+    /**
+     * Searches posts by query.
+     *
+     * @param string $query the search query
+     *
+     * @return PostCollection returns a collection of posts matching the query
+     */
+    public function searchPosts(string $query): PostCollection
+    {
+        $posts = new PostCollection();
+        foreach ($this->iterator as $file) {
+            if ($file instanceof \SplFileInfo) {
+                $post = Post::createFromFile($file);
+                if (stripos($post->getTitle(), $query) !== false || stripos($post->getContent(), $query) !== false) {
+                    $posts->add($post);
+                }
+            }
+        }
+       	$posts->sort();
+        return $posts;
+    }
+
+    /**
      * Sets the directory for the iterator and resets the iterator to reflect the new directory.
      * This is necessary to ensure the iterator points to the correct directory.
      *

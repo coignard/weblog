@@ -24,12 +24,27 @@ final class Router
 
         $requestedRoute = Route::tryFrom($routeKey) ?? $routeKey;
 
+        if (isset($_GET['q']) && is_string($_GET['q'])) {
+            $query = urldecode($_GET['q']);
+            try {
+                $this->postController->renderSearchResults($query);
+            } catch (\Weblog\Exception\NotFoundException $e) {
+                $this->postController->handleNotFound();
+            }
+            return;
+        }
+
         try {
             match ($requestedRoute) {
                 Route::HOME => $this->postController->renderHome(),
                 Route::SITEMAP => $this->feedController->renderSitemap(),
                 Route::RSS => $this->feedController->renderRSS(),
                 Route::RANDOM => $this->postController->renderRandomPost(),
+                'latest' => $this->postController->renderLatestPost(),
+                'latest/year' => $this->postController->renderLatestYear(),
+                'latest/month' => $this->postController->renderLatestMonth(),
+                'latest/week' => $this->postController->renderLatestWeek(),
+                'latest/day' => $this->postController->renderLatestDay(),
                 default => $this->handleDynamicRoute($routeKey),
             };
         } catch (\Exception) {
@@ -65,6 +80,12 @@ final class Router
 
         if (Validator::isValidCategoryPath($route)) {
             $this->postController->renderPostsByCategory($route);
+
+            return;
+        }
+
+        if (preg_match('#^search/(.+)$#', $route, $matches)) {
+            $this->postController->renderSearchResults(urldecode($matches[1]));
 
             return;
         }

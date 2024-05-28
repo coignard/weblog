@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.12.0';
+    private const VERSION = '1.13.0';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -105,7 +105,7 @@ final class Config
             return;
         }
 
-        $this->lineWidth = (int) ($this->lineWidth / 2) + 7;
+        $this->lineWidth = (int) ($this->lineWidth / 2) + 6;
         $this->showCategory = false;
         $this->showDate = false;
         $this->showCopyright = false;
