@@ -98,7 +98,7 @@ final class PostController extends AbstractController
 
         echo ContentFormatter::formatPostContent($post->getContent());
 
-        if ($showUrls && (ShowUrls::FULL === 'Off' | ShowUrls::SHORT === 'Off')) {
+        if ($showUrls && (ShowUrls::FULL === Config::get()->showUrls | ShowUrls::SHORT === Config::get()->showUrls)) {
             $url = StringUtils::formatUrl($post->getSlug());
             echo "\n   ".$url."\n\n";
         }
