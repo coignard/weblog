@@ -124,6 +124,8 @@ server {
 - Access individual posts by appending `/your-post-name/` to the URL.
 - Access posts from a specific date by `/YYYY/MM/DD/`.
 - View all posts under a category by `/your-category-name/`.
+- View selected posts by `/selected/`.
+- Search posts via `/search?q=` or `/search/`.
 
 ## Security
 
