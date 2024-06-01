@@ -78,6 +78,28 @@ final class Validator
     }
 
     /**
+     * Checks if the route is a search route.
+     *
+     * @param string $route The route string to check.
+     * @return bool Returns true if the route is a search route.
+     */
+    public static function isSearchRoute(string $route): bool
+    {
+        return preg_match('#^search/(.+)$#', $route) === 1;
+    }
+
+    /**
+     * Checks if the route is a selected posts route.
+     *
+     * @param string $route The route string to check.
+     * @return bool Returns true if the route is a selected posts route.
+     */
+    public static function isSelectedRoute(string $route): bool
+    {
+        return preg_match('#^selected$#', $route) === 1;
+    }
+
+    /**
      * Checks if the current user agent is a mobile device.
      */
     public static function isMobileDevice(): bool

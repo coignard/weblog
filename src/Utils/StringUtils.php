@@ -52,6 +52,42 @@ final class StringUtils
     }
 
     /**
+     * Removes diacritics from the given string.
+     *
+     * This function replaces diacritic characters with their closest ASCII equivalents.
+     *
+     * @param string $text The text from which diacritics should be removed.
+     * @return string The text with diacritics removed.
+     */
+    public static function removeDiacritics(string $text): string
+    {
+        $normalizeChars = array(
+            'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+            'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+            'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+            'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+            'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'Ŕ'=>'R', 'ŕ'=>'r', 'ŕ'=>'r'
+        );
+
+        return strtr($text, $normalizeChars);
+    }
+
+    /**
+     * Checks if a string contains another string, ignoring case and diacritics.
+     *
+     * @param string $haystack The string to search in.
+     * @param string $needle The string to search for.
+     * @return bool Returns true if the needle is found in the haystack, false otherwise.
+     */
+    public static function containsIgnoreCaseAndDiacritics(string $haystack, string $needle): bool
+    {
+        $haystack = self::removeDiacritics(mb_strtolower($haystack, 'UTF-8'));
+        $needle = self::removeDiacritics(mb_strtolower($needle, 'UTF-8'));
+
+        return mb_strpos($haystack, $needle) !== false;
+    }
+
+    /**
      * Cleans a slug from extensions.
      *
      * @return string the formatted string

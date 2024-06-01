@@ -144,6 +144,7 @@ final class PostRepository
             }
         }
         $posts->sort();
+
         return $posts;
     }
 
@@ -167,6 +168,31 @@ final class PostRepository
             }
         }
         $posts->sort();
+
+        return $posts;
+    }
+
+    /**
+     * Fetches selected posts from the weblog directory.
+     *
+     * A selected post is identified by an asterisk (*) at the beginning of its title.
+     * The method collects all such posts and returns them sorted from newest to oldest.
+     *
+     * @return PostCollection an array of Post objects inside a PostCollection
+     */
+    public function fetchSelectedPosts(): PostCollection
+    {
+        $posts = new PostCollection();
+        foreach ($this->iterator as $file) {
+            if ($file instanceof \SplFileInfo) {
+                $post = Post::createFromFile($file);
+                if ($post->isSelected()) {
+                    $posts->add($post);
+                }
+            }
+        }
+        $posts->sort();
+
         return $posts;
     }
 
@@ -183,12 +209,14 @@ final class PostRepository
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 $post = Post::createFromFile($file);
-                if (stripos($post->getTitle(), $query) !== false || stripos($post->getContent(), $query) !== false) {
-                    $posts->add($post);
+                if (StringUtils::containsIgnoreCaseAndDiacritics($post->getTitle(), $query) ||
+                    StringUtils::containsIgnoreCaseAndDiacritics($post->getContent(), $query)) {
+                    $posts.add($post);
                 }
             }
         }
-       	$posts->sort();
+        $posts.sort();
+
         return $posts;
     }
 

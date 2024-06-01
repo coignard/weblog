@@ -44,9 +44,18 @@ final class Post
         );
     }
 
+    public function isSelected(): bool
+    {
+        return str_starts_with($this->title, '*');
+    }
+
     public function getTitle(): string
     {
-        return $this->title;
+        $title = ltrim($this->title, '*');
+        if ($this->isSelected()) {
+            $title .= ' ★';
+        }
+        return $title;
     }
 
     public function getSlug(): string

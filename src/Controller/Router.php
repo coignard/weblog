@@ -84,8 +84,16 @@ final class Router
             return;
         }
 
-        if (preg_match('#^search/(.+)$#', $route, $matches)) {
+        if (Validator::isSearchRoute($route)) {
+            $matches = [];
+            preg_match('#^search/(.+)$#', $route, $matches);
             $this->postController->renderSearchResults(urldecode($matches[1]));
+
+            return;
+        }
+
+        if (Validator::isSelectedRoute($route)) {
+            $this->postController->renderSelectedPosts();
 
             return;
         }

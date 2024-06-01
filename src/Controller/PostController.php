@@ -248,6 +248,23 @@ final class PostController extends AbstractController
     }
 
     /**
+     * Renders the selected posts.
+     *
+     * Fetches and displays all posts marked as selected. If no selected posts are found, a NotFoundException is thrown.
+     *
+     * @throws NotFoundException if no selected posts are found.
+     */
+    public function renderSelectedPosts(): void
+    {
+        $posts = $this->postRepository->fetchSelectedPosts();
+        if ($posts->isEmpty()) {
+            throw new NotFoundException();
+        }
+        $this->renderPosts($posts, 'Off', true);
+        $this->renderFooter($posts->getYearRange());
+    }
+
+    /**
      * Renders search results.
      *
      * @param string $query the search query
