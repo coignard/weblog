@@ -6,6 +6,7 @@ namespace Weblog\Model;
 
 use Weblog\Model\Entity\Post;
 use Weblog\Utils\Validator;
+use Weblog\Utils\StringUtils;
 
 final class PostRepository
 {
@@ -211,11 +212,11 @@ final class PostRepository
                 $post = Post::createFromFile($file);
                 if (StringUtils::containsIgnoreCaseAndDiacritics($post->getTitle(), $query) ||
                     StringUtils::containsIgnoreCaseAndDiacritics($post->getContent(), $query)) {
-                    $posts.add($post);
+                    $posts->add($post);
                 }
             }
         }
-        $posts.sort();
+        $posts->sort();
 
         return $posts;
     }
