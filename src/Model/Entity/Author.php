@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Weblog\Model\Entity;
 
+use Weblog\Config;
 use Weblog\Utils\StringUtils;
+use Weblog\Model\Enum\Beautify;
 
 final class Author
 {

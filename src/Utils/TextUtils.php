@@ -144,7 +144,7 @@ final class TextUtils
                     $listContent .= "\n" . self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
                 }
                 $listIndex++;
-            } elseif (preg_match('/^- /', $trimmedLine)) {
+            } elseif (preg_match('/^[-*] /', $trimmedLine)) {
                 if ($listType === 'ol') {
                     $formattedText .= "\n" . $listContent . "\n";
                     $listContent = '';
@@ -157,7 +157,7 @@ final class TextUtils
                     $insideList = true;
                     $listContent .= self::formatListItem($trimmedLine, $listType);
                 } else {
-                    $listContent .= "\n" . self::formatListItem($trimmedLine, $listType);
+                    $listContent .= "\n\n" . self::formatListItem($trimmedLine, $listType);
                 }
             } else {
                 if ($insideList) {
@@ -197,7 +197,7 @@ final class TextUtils
             $linePrefix .= $index . '.  ';
             $itemText = trim(substr($item, strlen((string)$index) + 1));
         } else {
-            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '  •' : '  -';
+            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '•' : '*';
             $linePrefix .= $bullet . '  ';
             $itemText = trim(substr($item, 2));
         }
@@ -307,7 +307,14 @@ final class TextUtils
      */
     public static function formatAboutText(): string
     {
-        $paragraphs = explode("\n", Config::get()->author->getAbout());
+        $aboutText = Config::get()->author->getAbout();
+
+        if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT])) {
+            $aboutText = StringUtils::beautifyText($aboutText);
+        }
+
+        $paragraphs = explode("\n", $aboutText);
+
         $formattedAboutText = '';
 
         foreach ($paragraphs as $paragraph) {

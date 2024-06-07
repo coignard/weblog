@@ -6,6 +6,7 @@ namespace Weblog\Model\Entity;
 
 use Weblog\Config;
 use Weblog\Utils\StringUtils;
+use Weblog\Model\Enum\Beautify;
 
 final class Post
 {
@@ -52,9 +53,12 @@ final class Post
     public function getTitle(): string
     {
         $title = ltrim($this->title, '*');
-        if ($this->isSelected()) {
-            $title .= ' ★';
+        $hideSelected = Config::get()->hideSelected;
+
+        if ($this->isSelected() && !$hideSelected) {
+            $title .= Config::get()->beautify === Beautify::OFF ? ' *' : ' ★';
         }
+
         return $title;
     }
 
