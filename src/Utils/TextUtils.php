@@ -141,7 +141,7 @@ final class TextUtils
                     $insideList = true;
                     $listContent .= self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
                 } else {
-                    $listContent .= "\n" . self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
+                    $listContent .= "\n\n" . self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
                 }
                 $listIndex++;
             } elseif (preg_match('/^[-*] /', $trimmedLine)) {
