@@ -122,6 +122,7 @@ final class ContentFormatter
         $insideList = false;
         $listContent = '';
         $listType = '';
+        $listItems = [];
 
         foreach ($paragraphs as $paragraph) {
             $trimmedParagraph = trim($paragraph);
@@ -133,18 +134,17 @@ final class ContentFormatter
                     $blockquoteContent .= '<blockquote>';
                 }
                 $blockquoteContent .= htmlspecialchars($quoteText) . '<br />';
-            }
-            elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^- /', $trimmedParagraph)) {
+            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^[-*] /', $trimmedParagraph)) {
                 $listType = isset($matches[1]) ? 'ol' : 'ul';
 
                 if (!$insideList) {
                     $insideList = true;
-                    $listContent .= $listType === 'ol' ? '<ol>' : '<ul>';
+                    $listItems = [];
                 }
 
-                $listContent .= $listType === 'ol' ? '<li>' . htmlspecialchars(trim(substr($trimmedParagraph, strlen($matches[0])))) . '</li>' : '<li>' . htmlspecialchars(trim(substr($trimmedParagraph, 2))) . '</li>';
-            }
-            else {
+                $itemText = isset($matches[1]) ? trim(substr($trimmedParagraph, strlen($matches[0]))) : trim(substr($trimmedParagraph, 2));
+                $listItems[] = htmlspecialchars($itemText);
+            } else {
                 if ($insideBlockquote) {
                     $insideBlockquote = false;
                     $blockquoteContent .= '</blockquote>';
@@ -154,9 +154,17 @@ final class ContentFormatter
 
                 if ($insideList) {
                     $insideList = false;
-                    $listContent .= $listType === 'ol' ? '</ol>' : '</ul>';
-                    $formattedContent .= $listContent;
-                    $listContent = '';
+                    if (count($listItems) == 1 && $listType === 'ol') {
+                        $formattedContent .= '<h2>' . $listItems[0] . '</h2>';
+                    } else {
+                        $listContent = $listType === 'ol' ? '<ol>' : '<ul>';
+                        foreach ($listItems as $item) {
+                            $listContent .= '<li>' . $item . '</li>';
+                        }
+                        $listContent .= $listType === 'ol' ? '</ol>' : '</ul>';
+                        $formattedContent .= $listContent;
+                    }
+                    $listItems = [];
                 }
 
                 if (!empty($trimmedParagraph)) {
@@ -170,7 +178,13 @@ final class ContentFormatter
             $formattedContent .= $blockquoteContent;
         }
 
-        if ($insideList) {
+        if ($insideList && count($listItems) == 1 && $listType === 'ol') {
+            $formattedContent .= '<h2>' . $listItems[0] . '</h2>';
+        } elseif ($insideList) {
+            $listContent = $listType === 'ol' ? '<ol>' : '<ul>';
+            foreach ($listItems as $item) {
+                $listContent .= '<li>' . $item . '</li>';
+            }
             $listContent .= $listType === 'ol' ? '</ol>' : '</ul>';
             $formattedContent .= $listContent;
         }
