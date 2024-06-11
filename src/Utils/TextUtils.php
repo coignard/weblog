@@ -123,51 +123,44 @@ final class TextUtils
         $insideList = false;
         $listContent = '';
         $listType = '';
-        $listIndex = 1;
 
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
 
             if (preg_match('/^(\d+)\.\s/', $trimmedLine, $matches)) {
                 if ($listType === 'ul') {
-                    $formattedText .= "\n" . $listContent . "\n";
+                    $formattedText .= $listContent . "\n";
                     $listContent = '';
                     $listType = '';
-                    $listIndex = 1;
                 }
 
                 $listType = 'ol';
                 if (!$insideList) {
                     $insideList = true;
-                    $listContent .= self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
+                    $listContent .= self::formatListItem($line, $listType, (int)$matches[1]);
                 } else {
-                    $listContent .= "\n\n" . self::formatListItem($trimmedLine, $listType, (int)$matches[1]);
+                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType, (int)$matches[1]);
                 }
-                $listIndex++;
             } elseif (preg_match('/^[-*] /', $trimmedLine)) {
                 if ($listType === 'ol') {
-                    $formattedText .= "\n" . $listContent . "\n";
+                    $formattedText .= $listContent . "\n";
                     $listContent = '';
                     $listType = '';
-                    $listIndex = 1;
                 }
 
                 $listType = 'ul';
                 if (!$insideList) {
                     $insideList = true;
-                    $listContent .= self::formatListItem($trimmedLine, $listType);
+                    $listContent .= self::formatListItem($line, $listType);
                 } else {
-                    $listContent .= "\n\n" . self::formatListItem($trimmedLine, $listType);
+                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType);
                 }
             } else {
                 if ($insideList) {
-                    $insideList = false;
-                    $formattedText .= "\n" . $listContent . "\n";
-                    $listContent = '';
-                    $listType = '';
-                    $listIndex = 1;
+                    $listContent .= "\n" . self::formatListItem($line, $listType, 0, true);
+                } else {
+                    $formattedText .= TextUtils::formatParagraph($trimmedLine) . "\n";
                 }
-                $formattedText .= TextUtils::formatParagraph($trimmedLine) . "\n";
             }
         }
 
@@ -187,19 +180,24 @@ final class TextUtils
      *
      * @return string The formatted list item.
      */
-    public static function formatListItem(string $item, string $listType, int $index = 1): string
+    public static function formatListItem(string $item, string $listType, int $index = 1, bool $isContinuation = false): string
     {
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
 
-        if ($listType === 'ol') {
-            $linePrefix .= $index . '.  ';
-            $itemText = trim(substr($item, strlen((string)$index) + 1));
-        } else {
+        if ($listType === 'ol' && !$isContinuation) {
+            $number = $index . '.';
+            $suffix = (strlen((string)$index) === 1) ? '  ' : ' ';
+            $linePrefix .= $number . $suffix;
+            $itemText = trim(substr($item, strlen($number)));
+        } elseif ($listType === 'ul' && !$isContinuation) {
             $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '•' : '*';
             $linePrefix .= $bullet . '  ';
             $itemText = trim(substr($item, 2));
+        } else {
+            $linePrefix .= ' ';
+            $itemText = $item;
         }
 
         $words = explode(' ', $itemText);
@@ -230,22 +228,29 @@ final class TextUtils
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
-        $words = explode(' ', $text);
-        $line = $linePrefix;
+
         $result = '';
 
-        foreach ($words as $word) {
-            if (mb_strlen($line.$word) > $lineWidth) {
-                $result .= rtrim($line)."\n";
-                $line = $linePrefix.$word.' ';
-            } else {
-                $line .= $word.' ';
+        if (str_starts_with($text, '.center')) {
+            $text = trim(substr($text, 7));
+            $result = self::centerText($text);
+        } else {
+            $words = explode(' ', $text);
+            $line = $linePrefix;
+
+            foreach ($words as $word) {
+                if (mb_strlen($line . $word) > $lineWidth) {
+                    $result .= rtrim($line) . "\n";
+                    $line = $linePrefix . $word . ' ';
+                } else {
+                    $line .= $word . ' ';
+                }
             }
+
+            $result .= rtrim($line);
+
+            $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
         }
-
-        $result .= rtrim($line);
-
-        $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
 
         return $result;
     }
