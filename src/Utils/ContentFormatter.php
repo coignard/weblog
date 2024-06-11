@@ -73,6 +73,24 @@ final class ContentFormatter
         $dateWidth = $includeDate ? 20 : 0;
         $titleWidth = $availableWidth - $categoryWidth - $dateWidth;
 
+        if (Validator::isMobileDevice()) {
+            $titlePaddingLeft = (int) (($titleWidth - mb_strlen($title)) / 2) + 1;
+            $titlePaddingRight = $titleWidth - mb_strlen($title) - $titlePaddingLeft;
+
+            $formattedTitle = str_repeat(' ', $titlePaddingLeft).$title.str_repeat(' ', $titlePaddingRight);
+
+            $header = '';
+            if ($includeCategory) {
+                $header .= str_pad($category, $categoryWidth);
+            }
+            $header .= $formattedTitle;
+            if ($includeDate) {
+                $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
+            }
+
+            return StringUtils::capitalizeText($header);
+        }
+
         if (mb_strlen($title) > ($lineWidth / 2)) {
             $titleLines = wordwrap($title, ($lineWidth / 2), "\n", true);
             $titleParts = explode("\n", $titleLines);
