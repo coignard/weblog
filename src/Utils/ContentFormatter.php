@@ -54,7 +54,7 @@ final class ContentFormatter
      *
      * @return string the formatted header
      */
-    public static function formatPostHeader($title = '', $category = '', $date = ''): string
+    public static function formatPostHeader(string $title = '', string $category = '', string $date = ''): string
     {
         if ('~' === substr($title, 0, 1)) {
             $title = '* * *';
@@ -73,22 +73,30 @@ final class ContentFormatter
         $dateWidth = $includeDate ? 20 : 0;
         $titleWidth = $availableWidth - $categoryWidth - $dateWidth;
 
-        $titlePaddingLeft = (int) (($titleWidth - mb_strlen($title)) / 2);
-        $titlePaddingRight = $titleWidth - mb_strlen($title) - $titlePaddingLeft;
-
-        if (Validator::isMobileDevice()) {
-            $titlePaddingLeft += 1;
+        if (mb_strlen($title) > ($lineWidth / 2)) {
+            $titleLines = wordwrap($title, ($lineWidth / 2), "\n", true);
+            $titleParts = explode("\n", $titleLines);
+        } else {
+            $titleParts = [$title];
         }
-
-        $formattedTitle = str_repeat(' ', $titlePaddingLeft).$title.str_repeat(' ', $titlePaddingRight);
 
         $header = '';
-        if ($includeCategory) {
-            $header .= str_pad($category, $categoryWidth);
-        }
-        $header .= $formattedTitle;
-        if ($includeDate) {
-            $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
+
+        foreach ($titleParts as $index => $titleLine) {
+            $titlePaddingLeft = (int)(($titleWidth - mb_strlen($titleLine)) / 2);
+            $titlePaddingRight = $titleWidth - mb_strlen($titleLine) - $titlePaddingLeft;
+
+            if ($index > 0) {
+                $header .= "\n" . str_repeat(' ', $titlePaddingLeft + $categoryWidth) . $titleLine . str_repeat(' ', $titlePaddingRight + $dateWidth);
+            } else {
+                if ($includeCategory) {
+                    $header .= str_pad($category, $categoryWidth);
+                }
+                $header .= str_repeat(' ', $titlePaddingLeft) . $titleLine . str_repeat(' ', $titlePaddingRight);
+                if ($includeDate) {
+                    $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
+                }
+            }
         }
 
         return StringUtils::capitalizeText($header);
