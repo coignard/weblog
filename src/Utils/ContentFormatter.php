@@ -28,6 +28,16 @@ final class ContentFormatter
                 $trimmedParagraph = trim($paragraph);
             }
 
+            if (preg_match('/^(#+)\s*(.*)$/', $trimmedParagraph, $matches)) {
+                $text = $matches[2];
+                if (!Validator::isMobileDevice()) {
+                    $formattedContent .= "\n" . TextUtils::centerText($text) . "\n\n\n";
+                } else {
+                    $formattedContent .= "\n" . " " . TextUtils::centerText($text) . "\n\n\n";
+                }
+                continue;
+            }
+
             if (str_starts_with($trimmedParagraph, '>')) {
                 $formattedContent .= TextUtils::formatQuote($paragraph) . "\n\n";
             } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^- /', $trimmedParagraph)) {
@@ -127,13 +137,22 @@ final class ContentFormatter
         foreach ($paragraphs as $paragraph) {
             $trimmedParagraph = trim($paragraph);
 
+            if (preg_match('/^(#+)\s*(.*)$/', $trimmedParagraph, $matches)) {
+                $level = strlen($matches[1]);
+                $heading = htmlspecialchars($matches[2]);
+                $tag = 'h' . min($level, 6);
+
+                $formattedContent .= "<{$tag}>" . $heading . "</{$tag}>\n";
+                continue;
+            }
+
             if (str_starts_with($trimmedParagraph, '>')) {
                 $quoteText = substr($trimmedParagraph, 1);
                 if (!$insideBlockquote) {
                     $insideBlockquote = true;
                     $blockquoteContent .= '<blockquote>';
                 }
-                $blockquoteContent .= htmlspecialchars($quoteText) . '<br />';
+                $blockquoteContent .= ltrim(htmlspecialchars($quoteText)) . '<br />';
             } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^[-*] /', $trimmedParagraph)) {
                 $listType = isset($matches[1]) ? 'ol' : 'ul';
 
@@ -188,6 +207,8 @@ final class ContentFormatter
             $listContent .= $listType === 'ol' ? '</ol>' : '</ul>';
             $formattedContent .= $listContent;
         }
+
+        $formattedContent = str_replace('<br /></blockquote>', '</blockquote>', $formattedContent);
 
         return $formattedContent;
     }

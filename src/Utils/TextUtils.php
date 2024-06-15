@@ -41,6 +41,7 @@ final class TextUtils
         $formattedText = '';
         $insideQuote = false;
         $quoteContent = '';
+        $maxWidth = Validator::isMobileDevice() ? 30 : 56;
 
         foreach ($lines as $line) {
             $trimmedLine = ltrim($line);
@@ -59,10 +60,26 @@ final class TextUtils
                     $quoteLines = explode("\n", trim($quoteContent));
                     if (count($quoteLines) === 1) {
                         $singleQuote = trim($quoteLines[0]);
-                        $singleQuote = '“' . $singleQuote . '”';
-                        $quoteContent = TextUtils::centerText($singleQuote);
+                        if (mb_strlen($singleQuote) > $maxWidth) {
+                            $wrappedLines = explode("\n", wordwrap($singleQuote, $maxWidth));
+                            $centeredQuote = "";
+                            foreach ($wrappedLines as $wrappedLine) {
+                                if (!Validator::isMobileDevice()) {
+                                    $centeredQuote .= TextUtils::centerText($wrappedLine) . "\n";
+                                } else {
+                                    $centeredQuote .= " " . TextUtils::centerText($wrappedLine) . "\n";
+                                }
+                            }
+                            $quoteContent = $centeredQuote;
+                        } else {
+                            $quoteContent = TextUtils::centerText($singleQuote);
+                        }
                     } else {
-                        $quoteContent = self::formatQuoteText($quoteContent);
+                        if (!Validator::isMobileDevice()) {
+                            $quoteContent = self::formatQuoteText($quoteContent);
+                        } else {
+                            $quoteContent = " " . self::formatQuoteText($quoteContent);
+                        }
                     }
 
                     $formattedText .= "\n" . $quoteContent . "\n";
@@ -76,8 +93,24 @@ final class TextUtils
             $quoteLines = explode("\n", trim($quoteContent));
             if (count($quoteLines) === 1) {
                 $singleQuote = trim($quoteLines[0]);
-                $singleQuote = '“' . $singleQuote . '”';
-                $quoteContent = TextUtils::centerText($singleQuote);
+                if (mb_strlen($singleQuote) > $maxWidth) {
+                    $wrappedLines = explode("\n", wordwrap($singleQuote, $maxWidth));
+                    $centeredQuote = "";
+                    foreach ($wrappedLines as $wrappedLine) {
+                        if (!Validator::isMobileDevice()) {
+                            $centeredQuote .= TextUtils::centerText($wrappedLine) . "\n";
+                        } else {
+	                    $centeredQuote .= " " . TextUtils::centerText($wrappedLine) . "\n";
+                        }
+                    }
+                    $quoteContent = $centeredQuote;
+                } else {
+                    if (!Validator::isMobileDevice()) {
+                        $quoteContent = TextUtils::centerText($singleQuote);
+                    } else {
+                        $quoteContent = " " . TextUtils::centerText($singleQuote);
+                    }
+                }
             } else {
                 $quoteContent = self::formatQuoteText($quoteContent);
             }
