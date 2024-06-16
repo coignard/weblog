@@ -42,6 +42,7 @@ final class TextUtils
         $insideQuote = false;
         $quoteContent = '';
         $maxWidth = Validator::isMobileDevice() ? 30 : 56;
+        $isSingleQuote = false;
 
         foreach ($lines as $line) {
             $trimmedLine = ltrim($line);
@@ -60,6 +61,7 @@ final class TextUtils
                     $quoteLines = explode("\n", trim($quoteContent));
                     if (count($quoteLines) === 1) {
                         $singleQuote = trim($quoteLines[0]);
+                        $isSingleQuote = true;
                         if (mb_strlen($singleQuote) > $maxWidth) {
                             $wrappedLines = explode("\n", wordwrap($singleQuote, $maxWidth));
                             $centeredQuote = "";
@@ -93,6 +95,7 @@ final class TextUtils
             $quoteLines = explode("\n", trim($quoteContent));
             if (count($quoteLines) === 1) {
                 $singleQuote = trim($quoteLines[0]);
+                $isSingleQuote = true;
                 if (mb_strlen($singleQuote) > $maxWidth) {
                     $wrappedLines = explode("\n", wordwrap($singleQuote, $maxWidth));
                     $centeredQuote = "";
@@ -118,7 +121,11 @@ final class TextUtils
             $formattedText .= $quoteContent;
         }
 
-        return rtrim($formattedText);
+        if ($isSingleQuote) {
+            return "\n" . rtrim($formattedText) . "\n";
+        } else {
+            return rtrim($formattedText);
+        }
     }
 
     /**
