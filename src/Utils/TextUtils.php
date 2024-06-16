@@ -264,14 +264,21 @@ final class TextUtils
 
         $result = '';
 
-        if (str_starts_with($text, '.center')) {
-            $text = trim(substr($text, 7));
-            $result = self::centerText($text);
-        } else {
-            $words = explode(' ', $text);
-            $line = $linePrefix;
+        $words = explode(' ', $text);
+        $line = $linePrefix;
 
-            foreach ($words as $word) {
+        foreach ($words as $word) {
+            if (mb_strlen($word) > $lineWidth - $prefixLength) {
+                if (mb_strlen($line) > $prefixLength) {
+                    $result .= rtrim($line) . "\n";
+                    $line = $linePrefix;
+                }
+                while (mb_strlen($word) > $lineWidth - $prefixLength) {
+                    $result .= $linePrefix . mb_substr($word, 0, $lineWidth - $prefixLength) . "\n";
+                    $word = mb_substr($word, $lineWidth - $prefixLength);
+                }
+                $line .= $word . ' ';
+            } else {
                 if (mb_strlen($line . $word) > $lineWidth) {
                     $result .= rtrim($line) . "\n";
                     $line = $linePrefix . $word . ' ';
@@ -279,11 +286,11 @@ final class TextUtils
                     $line .= $word . ' ';
                 }
             }
-
-            $result .= rtrim($line);
-
-            $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
         }
+
+        $result .= rtrim($line);
+
+        $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
 
         return $result;
     }
