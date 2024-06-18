@@ -23,7 +23,7 @@ final class ContentFormatter
 
         foreach ($paragraphs as $paragraph) {
             if (!Validator::isMobileDevice()) {
-                $trimmedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', trim($paragraph));
+                $trimmedParagraph = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', trim($paragraph));
             } else {
                 $trimmedParagraph = trim($paragraph);
             }

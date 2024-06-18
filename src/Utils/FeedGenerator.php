@@ -146,11 +146,31 @@ final class FeedGenerator
             self::appendXmlElement($item, 'pubDate', $post->getFormattedDate(DATE_RSS));
             self::appendXmlElement($item, 'category', $post->getCategory());
 
+            $description = $post->getContent();
             if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::RSS])) {
-                self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent(StringUtils::beautifyText($post->getContent())));
-            } else {
-                self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($post->getContent()));
+                $description = StringUtils::beautifyText($description);
             }
+            $description = self::formatHyperlinks($description);
+            self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($description));
         }
+    }
+
+    /**
+     * Converts plain text URLs to hyperlinks.
+     *
+     * @param string $text The input text containing URLs.
+     *
+     * @return string The text with URLs converted to hyperlinks.
+     */
+    private static function formatHyperlinks(string $text): string
+    {
+        $text = preg_replace_callback('/^> (https?:\/\/[^\s]+)/m', function ($matches) {
+            return $matches[1];
+        }, $text);
+
+        $pattern = '/(https?:\/\/[^\s]+)/';
+        $replacement = '<a href="$1">$1</a>';
+
+        return preg_replace($pattern, $replacement, $text);
     }
 }

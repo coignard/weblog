@@ -37,6 +37,8 @@ final class TextUtils
      */
     public static function formatQuote(string $text): string
     {
+        $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
+
         $lines = explode("\n", $text);
         $formattedText = '';
         $insideQuote = false;
@@ -158,6 +160,8 @@ final class TextUtils
      */
     public static function formatList(string $text): string
     {
+        $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
+
         $lines = explode("\n", $text);
         $formattedText = '';
         $insideList = false;
@@ -372,7 +376,7 @@ final class TextUtils
         foreach ($paragraphs as $paragraph) {
             $formattedParagraph = $paragraph;
             if (!Validator::isMobileDevice()) {
-                $formattedParagraph = preg_replace('/([.!?]|\.{3})(\s)/', '$1 $2', rtrim($paragraph));
+                $formattedParagraph = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', rtrim($paragraph));
             }
             $formattedAboutText .= self::formatParagraph($formattedParagraph ?? '')."\n";
         }
