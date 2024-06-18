@@ -33,10 +33,12 @@ final class PostRepository
         $posts = new PostCollection();
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
-                $posts->add(Post::createFromFile($file));
+                $post = Post::createFromFile($file);
+                if (!$post->isDraft()) {
+                    $posts->add($post);
+                }
             }
         }
-
         $posts->sort();
 
         return $posts;
@@ -53,11 +55,10 @@ final class PostRepository
     public function fetchPostInDirectory(string $slug, ?string $directory = null): ?Post
     {
         $this->setDirectory($directory ?? $this->directory);
-
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 $post = Post::createFromFile($file);
-                if ($slug === $post->getSlug()) {
+                if ($slug === $post->getSlug() && !$post->isDraft()) {
                     return $post;
                 }
             }
@@ -104,7 +105,10 @@ final class PostRepository
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 if (Validator::isValidCategoryPost($file, $category, $this->directory)) {
-                    $posts->add(Post::createFromFile($file));
+                    $post = Post::createFromFile($file);
+                    if (!$post->isDraft()) {
+                        $posts->add($post);
+                    }
                 }
             }
         }
@@ -163,7 +167,7 @@ final class PostRepository
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 $post = Post::createFromFile($file);
-                if ($post->getDate() >= $startDate && $post->getDate() <= $endDate) {
+                if ($post->getDate() >= $startDate && $post->getDate() <= $endDate && !$post->isDraft()) {
                     $posts->add($post);
                 }
             }
@@ -187,7 +191,7 @@ final class PostRepository
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 $post = Post::createFromFile($file);
-                if ($post->isSelected()) {
+                if ($post->isSelected() && !$post->isDraft()) {
                     $posts->add($post);
                 }
             }
@@ -210,8 +214,10 @@ final class PostRepository
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
                 $post = Post::createFromFile($file);
-                if (StringUtils::containsIgnoreCaseAndDiacritics($post->getTitle(), $query) ||
-                    StringUtils::containsIgnoreCaseAndDiacritics($post->getContent(), $query)) {
+                if (!$post->isDraft() &&
+                    (StringUtils::containsIgnoreCaseAndDiacritics($post->getTitle(), $query) ||
+                     StringUtils::containsIgnoreCaseAndDiacritics($post->getContent(), $query))
+                ) {
                     $posts->add($post);
                 }
             }
@@ -219,6 +225,30 @@ final class PostRepository
         $posts->sort();
 
         return $posts;
+    }
+
+    /**
+     * Fetches a draft by its slug.
+     *
+     * @param string $slug The slug of the draft to find.
+     * @return null|Post The draft post or null if not found.
+     */
+    public function fetchDraftBySlug(string $slug): ?Post
+    {
+        $draftsDir = $this->directory . '/drafts';
+        if (!is_dir($draftsDir)) {
+            throw new \RuntimeException("Drafts directory not found: {$draftsDir}");
+        }
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($draftsDir, \RecursiveDirectoryIterator::SKIP_DOTS));
+        foreach ($iterator as $file) {
+            if ($file instanceof \SplFileInfo) {
+                $post = Post::createFromFile($file, true);
+                if ($slug === $post->getSlug()) {
+                    return $post;
+                }
+            }
+        }
+        return null;
     }
 
     /**

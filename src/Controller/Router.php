@@ -24,6 +24,12 @@ final class Router
 
         $requestedRoute = Route::tryFrom($routeKey) ?? $routeKey;
 
+        if (str_starts_with($routeKey, 'drafts/')) {
+            $slug = substr($routeKey, 7);
+            $this->postController->renderDraft($slug);
+            return;
+        }
+
         if (isset($_GET['q']) && is_string($_GET['q'])) {
             $query = urldecode($_GET['q']);
             try {
@@ -40,11 +46,11 @@ final class Router
                 Route::SITEMAP => $this->feedController->renderSitemap(),
                 Route::RSS => $this->feedController->renderRSS(),
                 Route::RANDOM => $this->postController->renderRandomPost(),
-                'latest' => $this->postController->renderLatestPost(),
-                'latest/year' => $this->postController->renderLatestYear(),
-                'latest/month' => $this->postController->renderLatestMonth(),
-                'latest/week' => $this->postController->renderLatestWeek(),
-                'latest/day' => $this->postController->renderLatestDay(),
+                Route::LATEST => $this->postController->renderLatestPost(),
+                Route::LATEST_YEAR => $this->postController->renderLatestYear(),
+                Route::LATEST_MONTH => $this->postController->renderLatestMonth(),
+                Route::LATEST_WEEK => $this->postController->renderLatestWeek(),
+                Route::LATEST_DAY => $this->postController->renderLatestDay(),
                 default => $this->handleDynamicRoute($routeKey),
             };
         } catch (\Exception) {

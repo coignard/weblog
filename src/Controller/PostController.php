@@ -115,6 +115,21 @@ final class PostController extends AbstractController
     }
 
     /**
+     * Renders a draft post.
+     *
+     * @param string $slug The slug of the draft to render.
+     * @throws NotFoundException If the draft is not found.
+     */
+    public function renderDraft(string $slug): void
+    {
+        $draft = $this->postRepository->fetchDraftBySlug($slug);
+        if (null === $draft) {
+            throw new NotFoundException();
+        }
+        $this->renderFullPost($draft);
+    }
+
+    /**
      * Renders posts filtered by category.
      *
      * @param string $category category name from URL

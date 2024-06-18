@@ -13,15 +13,29 @@ final class Post
     /**
      * Constructs a new Post instance with specified properties.
      *
-     * @param string             $title the title of the Post
-     * @param string             $path  the file path of the Post
-     * @param \DateTimeImmutable $date  the last modified date the Post
+     * @param string $title The title of the post.
+     * @param string $path The file path of the post.
+     * @param \DateTimeImmutable $date The last modified date of the post.
+     * @param bool $isDraft Indicates if the post is a draft.
      */
     public function __construct(
         private readonly string $title,
         private readonly string $path,
         private readonly \DateTimeImmutable $date,
-    ) {}
+        private bool $isDraft = false
+    ) {
+        $this->isDraft = $isDraft;
+    }
+
+    /**
+     * Checks if the post is a draft.
+     *
+     * @return bool True if the post is a draft, false otherwise.
+     */
+    public function isDraft(): bool
+    {
+        return $this->isDraft;
+    }
 
     /**
      * Creates an instance from a file.
@@ -30,18 +44,19 @@ final class Post
      * and sets the date based on the file's last modification time.
      *
      * @param \SplFileInfo $file the file from which to create the instance
+     * @param bool $isDraft indicates if the file represents a draft
      *
      * @return self returns a Post instance populated with data from the file
      */
-    public static function createFromFile(\SplFileInfo $file): self
-    {
+    public static function createFromFile(\SplFileInfo $file, bool $isDraft = false): self {
         $date = new \DateTimeImmutable('@'.$file->getMTime());
         $date = $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-
+        $isDraft = strpos($file->getPathname(), '/drafts/') !== false;
         return new self(
             title: basename($file->getFilename(), '.txt'),
             path: $file->getPathname(),
             date: $date,
+            isDraft: $isDraft
         );
     }
 
