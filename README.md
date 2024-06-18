@@ -108,6 +108,7 @@ server {
         rewrite ^/latest/([^/]+)$ /latest/$1/ permanent;
         rewrite ^/search/(.*)/?$ /index.php?go=search/$1 last;
         rewrite ^/selected$ /selected/ permanent;
+        rewrite ^/drafts/([^/]+)$ /drafts/$1/ permanent;
         rewrite ^/(.*)/$ /index.php?go=$1 last;
     }
 

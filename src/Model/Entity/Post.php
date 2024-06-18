@@ -13,10 +13,10 @@ final class Post
     /**
      * Constructs a new Post instance with specified properties.
      *
-     * @param string $title The title of the post.
-     * @param string $path The file path of the post.
-     * @param \DateTimeImmutable $date The last modified date of the post.
-     * @param bool $isDraft Indicates if the post is a draft.
+     * @param string             $title   the title of the Post
+     * @param string             $path    the file path of the Post
+     * @param \DateTimeImmutable $date    the last modified date the Post
+     * @param bool               $isDraft indicates if the Post is a draft
      */
     public function __construct(
         private readonly string $title,
