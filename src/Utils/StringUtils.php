@@ -34,6 +34,8 @@ final class StringUtils
             throw new \RuntimeException('Failed to slugify title.');
         }
 
+        $title = preg_replace('/[\'"‘’“”]/u', '', $title);
+
         $title = preg_replace_callback('/(?<=[a-z])\'(?=[a-z])/i', function() {
             return '-';
         }, $title);
