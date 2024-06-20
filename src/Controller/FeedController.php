@@ -64,7 +64,7 @@ final class FeedController extends AbstractController
         if ($posts->isEmpty()) {
             throw new NotFoundException();
         }
-        $rss = FeedGenerator::generateRSS($posts);
+        $rss = FeedGenerator::generateRSS($posts, $category);
 
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;

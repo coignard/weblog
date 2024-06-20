@@ -61,7 +61,7 @@ final class FeedGenerator
         $rss = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"></rss>');
         $channel = $rss->addChild('channel');
         $lastmodDate = $posts->getMostRecentDate() ?? new \DateTimeImmutable();
-        $titleSuffix = '' !== $category ? ' - '.ucfirst($category) : $category;
+        $titleSuffix = '' !== $category ? ' — '.ucfirst($category) : $category;
 
         self::appendXmlElement($channel, 'title', Config::get()->author->getName().$titleSuffix);
         self::appendXmlElement($channel, 'link', Config::get()->url.'/');

@@ -25,8 +25,12 @@ final class Router
         $requestedRoute = Route::tryFrom($routeKey) ?? $routeKey;
 
         if (str_starts_with($routeKey, 'drafts/')) {
-            $slug = substr($routeKey, 7);
-            $this->postController->renderDraft($slug);
+            try {
+                $slug = substr($routeKey, 7);
+                $this->postController->renderDraft($slug);
+            } catch (\Weblog\Exception\NotFoundException $e) {
+                $this->postController->handleNotFound();
+            }
             return;
         }
 

@@ -39,8 +39,9 @@ final class StringUtils
         }, $title);
 
         $title = iconv('UTF-8', 'ASCII//TRANSLIT', $title) ?: '';
-        $title = preg_replace('/[^a-z0-9\s-]/', '', $title) ?: '';
+        $title = preg_replace('/[^a-z0-9\s-]/', '-', $title) ?: '';
         $title = preg_replace('/\s+/', '-', $title ?: '');
+        $title = preg_replace('/-+/', '-', $title);
 
         if (null === $title) {
             throw new \RuntimeException('Failed to slugify title.');
