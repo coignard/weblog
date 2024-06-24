@@ -167,6 +167,18 @@ final class TextUtils
         $insideList = false;
         $listContent = '';
         $listType = '';
+        $listItems = [];
+        $listCount = 0;
+
+        foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
+            if (preg_match('/^(\d+)\.\s/', $trimmedLine, $matches)) {
+                $listCount++;
+            } elseif (preg_match('/^[-*] /', $trimmedLine)) {
+                $listCount++;
+            }
+        }
 
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
@@ -179,11 +191,12 @@ final class TextUtils
                 }
 
                 $listType = 'ol';
+                $index = (int)$matches[1];
                 if (!$insideList) {
                     $insideList = true;
-                    $listContent .= self::formatListItem($line, $listType, (int)$matches[1]);
+                    $listContent .= self::formatListItem($line, $listType, $index, $listCount);
                 } else {
-                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType, (int)$matches[1]);
+                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType, $index, $listCount);
                 }
             } elseif (preg_match('/^[-*] /', $trimmedLine)) {
                 if ($listType === 'ol') {
@@ -195,13 +208,13 @@ final class TextUtils
                 $listType = 'ul';
                 if (!$insideList) {
                     $insideList = true;
-                    $listContent .= self::formatListItem($line, $listType);
+                    $listContent .= self::formatListItem($line, $listType, 0, $listCount);
                 } else {
-                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType);
+                    $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType, 0, $listCount);
                 }
             } else {
                 if ($insideList) {
-                    $listContent .= "\n" . self::formatListItem($line, $listType, 0, true);
+                    $listContent .= "\n" . self::formatListItem($line, $listType, 0, $listCount, true);
                 } else {
                     $formattedText .= TextUtils::formatParagraph($trimmedLine) . "\n";
                 }
@@ -224,15 +237,18 @@ final class TextUtils
      *
      * @return string The formatted list item.
      */
-    public static function formatListItem(string $item, string $listType, int $index = 1, bool $isContinuation = false): string
+    public static function formatListItem(string $item, string $listType, int $index = 1, int $totalItems = 10, bool $isContinuation = false): string
     {
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
 
+        $maxDigits = strlen((string)$totalItems);
+        $indexDigits = strlen((string)$index);
+
         if ($listType === 'ol' && !$isContinuation) {
             $number = $index . '.';
-            $suffix = (strlen((string)$index) === 1) ? '  ' : ' ';
+            $suffix = str_repeat(' ', $maxDigits - $indexDigits + 2);
             $linePrefix .= $number . $suffix;
             $itemText = trim(substr($item, strlen($number)));
         } elseif ($listType === 'ul' && !$isContinuation) {
