@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.17.3';
+    private const VERSION = '1.17.4';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**

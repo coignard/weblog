@@ -277,6 +277,46 @@ final class TextUtils
     }
 
     /**
+     * Formats asterism text
+     *
+     * @param string $text the text to be formatted
+     *
+     * @return string the formatted text
+     */
+    public static function formatAsterism(string $text): string
+    {
+        if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT])) {
+            if ($text === '***' || $text === '* * *') {
+                return "\n" . self::centerText('⁂') . "\n";
+            }
+        }
+
+        if ($text === '***') {
+            return "\n" . self::centerText('* * *') . "\n";
+        }
+
+        if ($text === '* * *') {
+            return "\n" . self::centerText('* * *') . "\n";
+        }
+
+        return self::centerText($text);
+    }
+
+    /**
+     * Formats a separator line.
+     *
+     * @return string the formatted separator
+     */
+    public static function formatSeparator(): string
+    {
+        $lineWidth = Config::get()->lineWidth;
+        $prefixLength = Config::get()->prefixLength;
+        $separator = str_repeat('—', 5);
+
+        return "\n" . self::centerText(str_repeat(' ', $prefixLength) . $separator . str_repeat(' ', $prefixLength)) . "\n";
+    }
+
+    /**
      * Formats a paragraph to fit within the configured line width, using a specified prefix length.
      *
      * @param string $text the text of the paragraph
@@ -285,6 +325,14 @@ final class TextUtils
      */
     public static function formatParagraph(string $text): string
     {
+        if (in_array($text, ['***', '* * *'])) {
+            return self::formatAsterism($text);
+        }
+
+        if ($text === '---') {
+            return self::formatSeparator();
+        }
+
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
@@ -405,7 +453,7 @@ final class TextUtils
             str_repeat('—', Config::get()->lineWidth - (Validator::isMobileDevice() ? Config::get()->prefixLength : 0))."\n\n\n\n\n";
             $formattedAboutText .= $separator;
         } else {
-            $formattedAboutText .= "\n\n\n\n";
+            $formattedAboutText .= "\n\n\n\n\n";
         }
 
         return $formattedAboutText;
