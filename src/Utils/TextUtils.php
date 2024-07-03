@@ -277,7 +277,7 @@ final class TextUtils
     }
 
     /**
-     * Formats asterism text
+     * Formats asterism text.
      *
      * @param string $text the text to be formatted
      *
