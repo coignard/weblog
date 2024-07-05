@@ -4,4 +4,4 @@ A minimalistic, plain text-based blog engine written in PHP, inspired by the sim
 
 LICENSE
 
-This project is open-sourced under the MIT License. See the LICENSE file for more details.
+This project is open-sourced under the MIT License. See the LICENSE.txt file for more details.
