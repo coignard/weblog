@@ -343,16 +343,25 @@ final class TextUtils
         $line = $linePrefix;
 
         foreach ($words as $word) {
-            if (mb_strlen($word) > $lineWidth - $prefixLength) {
-                if (mb_strlen($line) > $prefixLength) {
-                    $result .= rtrim($line) . "\n";
-                    $line = $linePrefix;
+            if (strpos($word, '-') !== false) {
+                $hyphenParts = explode('-', $word);
+                foreach ($hyphenParts as $index => $part) {
+                    if ($index > 0) {
+                        $part = '-' . $part;
+                    }
+                    if (mb_strlen($line . $part) > $lineWidth) {
+                        if ($index > 0) {
+                            $result .= rtrim($line) . "-\n";
+                            $line = $linePrefix . ltrim($part, '-');
+                        } else {
+                            $result .= rtrim($line) . "\n";
+                            $line = $linePrefix . $part;
+                        }
+                    } else {
+                        $line .= $part;
+                    }
                 }
-                while (mb_strlen($word) > $lineWidth - $prefixLength) {
-                    $result .= $linePrefix . mb_substr($word, 0, $lineWidth - $prefixLength) . "\n";
-                    $word = mb_substr($word, $lineWidth - $prefixLength);
-                }
-                $line .= $word . ' ';
+                $line .= ' ';
             } else {
                 if (mb_strlen($line . $word) > $lineWidth) {
                     $result .= rtrim($line) . "\n";
