@@ -252,7 +252,8 @@ final class TextUtils
             $linePrefix .= $number . $suffix;
             $itemText = trim(substr($item, strlen($number)));
         } elseif ($listType === 'ul' && !$isContinuation) {
-            $bullet = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]) ? '•' : '*';
+            $isBeautifyEnabled = in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT]);
+            $bullet = $item[0] === '*' ? ($isBeautifyEnabled ? '•' : '*') : ($isBeautifyEnabled ? '—' : '-');
             $linePrefix .= $bullet . '  ';
             $itemText = trim(substr($item, 2));
         } else {

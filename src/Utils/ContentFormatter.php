@@ -40,7 +40,7 @@ final class ContentFormatter
 
             if (str_starts_with($trimmedParagraph, '>')) {
                 $formattedContent .= TextUtils::formatQuote($paragraph) . "\n\n";
-            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^- /', $trimmedParagraph)) {
+            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^[-*] /', $trimmedParagraph)) {
                 $formattedContent .= TextUtils::formatList($paragraph) . "\n\n";
             } else {
                 $formattedContent .= TextUtils::formatParagraph($trimmedParagraph) . "\n\n";
