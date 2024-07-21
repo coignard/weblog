@@ -20,33 +20,17 @@ final class Router
      */
     public function route(): void
     {
-        $routeKey = isset($_GET['go']) && \is_string($_GET['go']) ? $_GET['go'] : 'home';
+        $routeKey = isset($_GET['go']) && is_string($_GET['go']) ? $this->sanitizeRouteKey($_GET['go']) : null;
 
-        $requestedRoute = Route::tryFrom($routeKey) ?? $routeKey;
+        $requestedRoute = $routeKey !== null ? (Route::tryFrom($routeKey) ?? $routeKey) : null;
 
-        if (str_starts_with($routeKey, 'drafts/')) {
-            try {
-                $slug = substr($routeKey, 7);
-                $this->postController->renderDraft($slug);
-            } catch (\Weblog\Exception\NotFoundException $e) {
-                $this->postController->handleNotFound();
-            }
-            return;
-        }
-
-        if (isset($_GET['q']) && is_string($_GET['q'])) {
-            $query = urldecode($_GET['q']);
-            try {
-                $this->postController->renderSearchResults($query);
-            } catch (\Weblog\Exception\NotFoundException $e) {
-                $this->postController->handleNotFound();
-            }
+        if ($routeKey === null) {
+            $this->postController->renderHome();
             return;
         }
 
         try {
             match ($requestedRoute) {
-                Route::HOME => $this->postController->renderHome(),
                 Route::SITEMAP => $this->feedController->renderSitemap(),
                 Route::RSS => $this->feedController->renderRSS(),
                 Route::RANDOM => $this->postController->renderRandomPost(),
@@ -60,6 +44,30 @@ final class Router
         } catch (\Exception) {
             $this->postController->handleNotFound();
         }
+    }
+
+    /**
+     * Sanitizes the route key parameter.
+     *
+     * @param string $routeKey The route key to sanitize.
+     * @return string The sanitized route key.
+     */
+    private function sanitizeRouteKey(string $routeKey): string
+    {
+        $normalized = \Normalizer::normalize($routeKey, \Normalizer::FORM_D);
+        $sanitized = preg_replace('/[\p{Mn}\p{Me}\p{Cf}]/u', '', $normalized);
+        return $sanitized;
+    }
+
+    /**
+     * Sanitizes a slug parameter.
+     *
+     * @param string $slug The slug to sanitize.
+     * @return string The sanitized slug.
+     */
+    private function sanitizeSlug(string $slug): string
+    {
+        return preg_replace('/[^a-zA-Z0-9_-]/', '', $slug);
     }
 
     /**
@@ -91,6 +99,16 @@ final class Router
         if (Validator::isValidCategoryPath($route)) {
             $this->postController->renderPostsByCategory($route);
 
+            return;
+        }
+
+        if (Validator::isDraftsRoute($route)) {
+            try {
+                $slug = $this->sanitizeSlug(substr($route, 7));
+                $this->postController->renderDraft($slug);
+            } catch (\Weblog\Exception\NotFoundException $e) {
+                $this->postController->handleNotFound();
+            }
             return;
         }
 

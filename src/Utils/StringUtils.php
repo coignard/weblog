@@ -244,6 +244,14 @@ final class StringUtils
         $text = str_replace("'", "’", $text);
         $text = str_replace(['***', '* * *'], '⁂', $text);
 
+        $lines = explode("\n", $text);
+        foreach ($lines as &$line) {
+            if (strpos($line, '-') === 0) {
+                $line = '—' . substr($line, 1);
+            }
+        }
+        $text = implode("\n", $lines);
+
         return $text;
     }
 }

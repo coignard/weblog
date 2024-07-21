@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.17.6';
+    private const VERSION = '1.17.7';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -42,6 +42,7 @@ final class Config
         public array $rewrites = [],
         public Beautify $beautify = Beautify::OFF,
         public bool $hideSelected = false,
+        public bool $shortenDate = false
     ) {
         $this->loadConfig();
     }
@@ -95,6 +96,7 @@ final class Config
         $this->capitalizeTitles = $this->getBool('capitalize_titles') ?? $this->capitalizeTitles;
         $this->beautify = Beautify::tryFrom(is_bool($this->getString('beautify')) ? Beautify::OFF->value : ($this->getString('beautify') ?? '')) ?? Beautify::OFF;
         $this->hideSelected = $this->getBool('hide_selected') ?? $this->hideSelected;
+        $this->shortenDate = $this->getBool('shorten_date') ?? $this->shortenDate;
 
         $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 

@@ -40,7 +40,7 @@ final class ContentFormatter
 
             if (str_starts_with($trimmedParagraph, '>')) {
                 $formattedContent .= TextUtils::formatQuote($paragraph) . "\n\n";
-            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^[-*] /', $trimmedParagraph)) {
+            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^\* /', $trimmedParagraph)) {
                 $formattedContent .= TextUtils::formatList($paragraph) . "\n\n";
             } else {
                 $formattedContent .= TextUtils::formatParagraph($trimmedParagraph) . "\n\n";
@@ -108,6 +108,9 @@ final class ContentFormatter
                 }
                 $header .= str_repeat(' ', $titlePaddingLeft) . $titleLine . str_repeat(' ', $titlePaddingRight);
                 if ($includeDate) {
+                    if (Config::get()->shortenDate) {
+                        $date = (new \DateTime($date))->format('j M \'y');
+                    }
                     $header .= str_pad($date, $dateWidth, ' ', STR_PAD_LEFT);
                 }
             }
@@ -153,7 +156,7 @@ final class ContentFormatter
                     $blockquoteContent .= '<blockquote>';
                 }
                 $blockquoteContent .= ltrim(htmlspecialchars($quoteText)) . '<br />';
-            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^[-*] /', $trimmedParagraph)) {
+            } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^\* /', $trimmedParagraph)) {
                 $listType = isset($matches[1]) ? 'ol' : 'ul';
 
                 if (!$insideList) {

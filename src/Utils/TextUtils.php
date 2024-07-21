@@ -175,7 +175,7 @@ final class TextUtils
 
             if (preg_match('/^(\d+)\.\s/', $trimmedLine, $matches)) {
                 $listCount++;
-            } elseif (preg_match('/^[-*] /', $trimmedLine)) {
+            } elseif (preg_match('/^\* /', $trimmedLine)) {
                 $listCount++;
             }
         }
@@ -198,7 +198,7 @@ final class TextUtils
                 } else {
                     $listContent .= ($insideList && !empty($listContent) ? "\n\n" : "") . self::formatListItem($line, $listType, $index, $listCount);
                 }
-            } elseif (preg_match('/^[-*] /', $trimmedLine)) {
+            } elseif (preg_match('/^\* /', $trimmedLine)) {
                 if ($listType === 'ol') {
                     $formattedText .= $listContent . "\n";
                     $listContent = '';

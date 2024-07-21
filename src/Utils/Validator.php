@@ -78,6 +78,17 @@ final class Validator
     }
 
     /**
+     * Checks if the route is a drafts route.
+     *
+     * @param string $route The route string to check.
+     * @return bool Returns true if the route is a drafts route.
+     */
+    public static function isDraftsRoute(string $route): bool
+    {
+        return preg_match('#^drafts/#', $route) === 1;
+    }
+
+    /**
      * Checks if the route is a search route.
      *
      * @param string $route The route string to check.
