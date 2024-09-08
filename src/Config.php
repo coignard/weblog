@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.17.7';
+    private const VERSION = '1.17.8';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -42,7 +42,11 @@ final class Config
         public array $rewrites = [],
         public Beautify $beautify = Beautify::OFF,
         public bool $hideSelected = false,
-        public bool $shortenDate = false
+        public bool $shortenDate = false,
+        public bool $enableLogging = false,
+        public string $logFilePath = '/var/log/weblog/access.log',
+        public array $logFilterWords = [],
+        public array $logFilterAgents = []
     ) {
         $this->loadConfig();
     }
@@ -97,6 +101,10 @@ final class Config
         $this->beautify = Beautify::tryFrom(is_bool($this->getString('beautify')) ? Beautify::OFF->value : ($this->getString('beautify') ?? '')) ?? Beautify::OFF;
         $this->hideSelected = $this->getBool('hide_selected') ?? $this->hideSelected;
         $this->shortenDate = $this->getBool('shorten_date') ?? $this->shortenDate;
+        $this->enableLogging = $this->getBool('enable_logging') ?? $this->enableLogging;
+        $this->logFilePath = $this->getString('log_file_path') ?? '/var/log/weblog/access.log';
+        $this->logFilterWords = array_map('trim', explode(',', $this->getString('log_filter_words') ?? ''));
+        $this->logFilterAgents = array_map('trim', explode(',', $this->getString('log_filter_agents') ?? ''));
 
         $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 

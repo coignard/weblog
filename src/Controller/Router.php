@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Weblog\Controller;
 
+use Weblog\Config;
 use Weblog\Model\Route;
 use Weblog\Utils\StringUtils;
 use Weblog\Utils\Validator;
+use Weblog\Utils\Logger;
 
 final class Router
 {
@@ -20,12 +22,18 @@ final class Router
      */
     public function route(): void
     {
+        if ($this->isFaviconRequest($_SERVER['REQUEST_URI'])) {
+            $this->handleFaviconRequest();
+            return;
+        }
+
         $routeKey = isset($_GET['go']) && is_string($_GET['go']) ? $this->sanitizeRouteKey($_GET['go']) : null;
 
         $requestedRoute = $routeKey !== null ? (Route::tryFrom($routeKey) ?? $routeKey) : null;
 
         if ($routeKey === null) {
             $this->postController->renderHome();
+            $this->logRequest();
             return;
         }
 
@@ -41,7 +49,45 @@ final class Router
                 Route::LATEST_DAY => $this->postController->renderLatestDay(),
                 default => $this->handleDynamicRoute($routeKey),
             };
+            $this->logRequest();
         } catch (\Exception) {
+            $this->postController->handleNotFound();
+        }
+    }
+
+    /**
+     * Log the request using Logger.
+     */
+    private function logRequest(): void
+    {
+        $status = http_response_code();
+        if (Config::get()->enableLogging && $status == 200) {
+            Logger::getInstance(Config::get()->logFilePath)->log();
+        }
+    }
+
+    /**
+     * Checks if the request is for favicon.ico
+     *
+     * @param string $uri The requested URI
+     * @return bool
+     */
+    private function isFaviconRequest(string $uri): bool
+    {
+        return preg_match('~^/[^/]*?/favicon\.ico$~', $uri) || preg_match('~^/favicon\.ico$~', $uri);
+    }
+
+    /**
+     * Handles the favicon.ico request by serving the root favicon.ico
+     */
+    private function handleFaviconRequest(): void
+    {
+        $faviconPath = $_SERVER['DOCUMENT_ROOT'] . '/favicon.ico';
+
+        if (file_exists($faviconPath)) {
+            header('Content-Type: image/vnd.microsoft.icon');
+            readfile($faviconPath);
+        } else {
             $this->postController->handleNotFound();
         }
     }
