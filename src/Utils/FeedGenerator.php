@@ -183,6 +183,19 @@ final class FeedGenerator
      */
     private static function formatCode(string $text): string
     {
-        return preg_replace('/`([^`]*)`/', '<code>$1</code>', $text);
+        $pattern = '/`([^`]*)`/';
+        $replacePairs = [
+            '“' => '"',
+            '”' => '"',
+            '‘' => "'",
+            '’' => "'",
+            '—' => '-',
+        ];
+
+        $callback = function ($matches) use ($replacePairs) {
+            return '<code>' . strtr($matches[1], $replacePairs) . '</code>';
+        };
+
+        return preg_replace_callback($pattern, $callback, $text);
     }
 }
