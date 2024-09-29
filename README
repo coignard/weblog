@@ -1,0 +1,14 @@
+Weblog
+======
+
+A minimalistic, plain text-based blog engine written in PHP, inspired by
+the simplicity and structure of the RFC format.  No HTML, CSS, or JS
+included.  The blog engine does not require a database to function.
+
+I created this project to run my personal weblog, so you can check out the
+project in action on my personal website:
+
+    https://renecoignard.com/
+
+This project is open-sourced under the MIT License.  See the LICENSE file
+for more details.
