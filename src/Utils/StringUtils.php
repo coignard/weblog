@@ -18,6 +18,7 @@ final class StringUtils
      */
     public static function slugify($title): string
     {
+        $title = ltrim($title, '.');
         $title = mb_strtolower($title, 'UTF-8');
         $replacements = [
             '/а/u' => 'a',  '/б/u' => 'b',   '/в/u' => 'v',  '/г/u' => 'g',  '/д/u' => 'd',

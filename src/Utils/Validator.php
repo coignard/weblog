@@ -68,10 +68,12 @@ final class Validator
     public static function isValidCategoryPath(string $categoryPath): bool
     {
         $weblogDir = Config::get()->weblogDir;
-        $fullPath = $weblogDir.('misc' !== $categoryPath ? '/'.$categoryPath : '');
+        $fullPath = $weblogDir . ('misc' !== $categoryPath ? '/'.$categoryPath : '');
 
         if (!is_dir($fullPath)) {
-            return false;
+            if (!is_dir($weblogDir . '/.' . $categoryPath)) {
+                return false;
+            }
         }
 
         return true;

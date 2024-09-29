@@ -66,10 +66,6 @@ final class ContentFormatter
      */
     public static function formatPostHeader(string $title = '', string $category = '', string $date = ''): string
     {
-        if ('~' === substr($title, 0, 1)) {
-            $title = '* * *';
-        }
-
         if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::CONTENT])) {
             $title = StringUtils::beautifyText($title);
         }

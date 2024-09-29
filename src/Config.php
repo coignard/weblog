@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.17.8';
+    private const VERSION = '1.17.9';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -136,13 +136,13 @@ final class Config
     {
         $name = $this->getString('author_name') ?? $this->author->getName();
         $email = $this->getString('author_email') ?? $this->author->getEmail();
-        $city = $this->getString('city') ?? $this->author->getCity();
+        $location = $this->getString('location') ?? $this->author->getLocation();
         $aboutText = StringUtils::sanitizeText($this->getString('about_text') ?? $this->author->getAbout());
 
         $this->author = new Author(
             name: $name,
             email: $email,
-            city: $city,
+            location: $location,
             aboutText: $aboutText
         );
     }

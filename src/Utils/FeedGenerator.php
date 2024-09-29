@@ -134,7 +134,6 @@ final class FeedGenerator
 
             $item = $channel->addChild('item');
             $title = htmlspecialchars($post->getTitle(), ENT_XML1, 'UTF-8');
-            $title = ('~' === substr($title, 0, 1)) ? '* * *' : $title;
 
             if (in_array(Config::get()->beautify, [Beautify::ALL, Beautify::RSS])) {
                 $title = StringUtils::beautifyText($title);

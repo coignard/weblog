@@ -67,7 +67,8 @@ final class Post
 
     public function getTitle(): string
     {
-        $title = ltrim($this->title, '*');
+        $title = ltrim($this->title, '*.');
+
         $hideSelected = Config::get()->hideSelected;
 
         if ($this->isSelected() && !$hideSelected) {
@@ -107,7 +108,9 @@ final class Post
         $relativePath = str_replace(Config::get()->weblogDir, '', $this->getPath());
         $pathParts = explode('/', trim($relativePath, '/'));
 
-        return (\count($pathParts) > 1) ? ucfirst($pathParts[0]) : 'Misc';
+        $category = (\count($pathParts) > 1) ? ucfirst(ltrim($pathParts[0], '.')) : 'Misc';
+
+        return $category;
     }
 
     public function getContent(): string

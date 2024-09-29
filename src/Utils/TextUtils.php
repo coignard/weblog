@@ -403,7 +403,7 @@ final class TextUtils
 
         $leftText = Validator::isMobileDevice() ? '' : 'About';
         $centerText = Config::get()->author->getName();
-        $rightText = Validator::isMobileDevice() ? '' : Config::get()->author->getCity();
+        $rightText = Validator::isMobileDevice() ? '' : Config::get()->author->getLocation();
 
         $leftText = StringUtils::capitalizeText($leftText);
         $centerText = StringUtils::capitalizeText($centerText);
