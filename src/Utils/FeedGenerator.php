@@ -150,6 +150,7 @@ final class FeedGenerator
                 $description = StringUtils::beautifyText($description);
             }
             $description = self::formatHyperlinks($description);
+            $description = self::formatCode($description);
             self::appendXmlElement($item, 'description', ContentFormatter::formatRssContent($description));
         }
     }
@@ -171,5 +172,17 @@ final class FeedGenerator
         $replacement = '<a href="$1">$1</a>';
 
         return preg_replace($pattern, $replacement, $text);
+    }
+
+    /**
+     * Formats backticked text as code in RSS.
+     *
+     * @param string $text the raw text potentially containing backticked code
+     *
+     * @return string the formatted text for RSS
+     */
+    private static function formatCode(string $text): string
+    {
+        return preg_replace('/`([^`]*)`/', '<code>$1</code>', $text);
     }
 }
