@@ -136,7 +136,7 @@ final class Config
     {
         $name = $this->getString('author_name') ?? $this->author->getName();
         $email = $this->getString('author_email') ?? $this->author->getEmail();
-        $location = $this->getString('location') ?? $this->author->getLocation();
+        $location = $this->getString('author_location') ?? $this->author->getLocation();
         $aboutText = StringUtils::sanitizeText($this->getString('about_text') ?? $this->author->getAbout());
 
         $this->author = new Author(
