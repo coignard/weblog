@@ -12,7 +12,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.17.10';
+    private const VERSION = '1.17.11';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -33,15 +33,15 @@ final class Config
         public int $prefixLength = 3,
         public string $weblogDir = __DIR__.'/../weblog/',
         public bool $showPoweredBy = true,
-        public ShowUrls $showUrls = ShowUrls::FULL,
+        public ShowUrls $showUrls = ShowUrls::OFF,
         public bool $showCategory = true,
         public bool $showDate = true,
         public bool $showCopyright = true,
         public bool $showSeparator = false,
         public bool $capitalizeTitles = false,
         public array $rewrites = [],
-        public Beautify $beautify = Beautify::OFF,
-        public bool $hideSelected = false,
+        public Beautify $beautify = Beautify::RSS,
+        public bool $hideSelected = true,
         public bool $shortenDate = false,
         public bool $enableLogging = false,
         public string $logFilePath = '/var/log/weblog/access.log',

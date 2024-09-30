@@ -49,16 +49,20 @@ final class Logger
         $referer = $_SERVER['HTTP_REFERER'] ?? '-';
 
         $filterWords = Config::get()->logFilterWords;
-        foreach ($filterWords as $word) {
-            if (stripos($uri, $word) !== false) {
-                return;
+        if (!empty($filterWords)) {
+            foreach ($filterWords as $word) {
+                if (stripos($uri, $word) !== false) {
+                    return;
+                }
             }
         }
 
         $filterAgents = Config::get()->logFilterAgents;
-        foreach ($filterAgents as $agent) {
-            if (stripos($userAgent, $agent) !== false) {
-                return;
+        if (!empty($filterAgents)) {
+            foreach ($filterAgents as $agent) {
+                if (stripos($userAgent, $agent) !== false) {
+                    return;
+                }
             }
         }
 
