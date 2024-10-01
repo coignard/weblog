@@ -13,18 +13,21 @@ final class Post
     /**
      * Constructs a new Post instance with specified properties.
      *
-     * @param string             $title   the title of the Post
-     * @param string             $path    the file path of the Post
-     * @param \DateTimeImmutable $date    the last modified date the Post
-     * @param bool               $isDraft indicates if the Post is a draft
+     * @param string             $title    the title of the Post
+     * @param string             $path     the file path of the Post
+     * @param \DateTimeImmutable $date     the last modified date the Post
+     * @param bool               $isDraft  indicates if the Post is a draft
+     * @param bool               $isHidden indicates if the Post is hidden
      */
     public function __construct(
         private readonly string $title,
         private readonly string $path,
         private readonly \DateTimeImmutable $date,
-        private bool $isDraft = false
+        private bool $isDraft  = false,
+        private bool $isHidden = false
     ) {
         $this->isDraft = $isDraft;
+        $this->isHidden = $isHidden;
     }
 
     /**
@@ -35,6 +38,35 @@ final class Post
     public function isDraft(): bool
     {
         return $this->isDraft;
+    }
+
+    /**
+     * Checks if the post is hidden.
+     *
+     * @param bool $checkPath Whether to check the path for hidden directories.
+     *
+     * @return bool True if the post is hidden, false otherwise.
+     */
+    public function isHidden(bool $checkPath = true): bool
+    {
+        return $this->isHidden || ($checkPath && $this->isHiddenPath($this->path));
+    }
+
+    /**
+     * Determines if any component in the path is hidden.
+     *
+     * @param string $path The path to check.
+     * @return bool Returns true if the path contains hidden components, false otherwise.
+     */
+    private function isHiddenPath(string $path): bool
+    {
+        $pathParts = explode(DIRECTORY_SEPARATOR, $path);
+        foreach ($pathParts as $part) {
+            if (str_starts_with($part, '.')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -52,11 +84,13 @@ final class Post
         $date = new \DateTimeImmutable('@'.$file->getMTime());
         $date = $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         $isDraft = strpos($file->getPathname(), '/drafts/') !== false;
+        $isHidden = str_starts_with(basename($file->getFilename(), '.'), '.');
         return new self(
             title: basename($file->getFilename(), '.txt'),
             path: $file->getPathname(),
             date: $date,
-            isDraft: $isDraft
+            isDraft: $isDraft,
+            isHidden: $isHidden
         );
     }
 

@@ -24,26 +24,23 @@ final class PostRepository
     }
 
     /**
-     * Fetches all posts from the weblog directory, sorted from newest to oldest.
-     *
-     * @return PostCollection an array of Posts objects inside a PostCollection
-     */
+    * Fetches all posts from the weblog directory, sorted from newest to oldest.
+    *
+    * @return PostCollection an array of Posts objects inside a PostCollection
+    */
     public function fetchAllPosts(): PostCollection
     {
         $posts = new PostCollection();
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
-                if ($this->isHidden($file)) {
+                $post = Post::createFromFile($file);
+                if ($post->isHidden() || $post->isDraft()) {
                     continue;
                 }
-                $post = Post::createFromFile($file);
-                if (!$post->isDraft()) {
-                    $posts->add($post);
-                }
+                $posts->add($post);
             }
         }
         $posts->sort();
-
         return $posts;
     }
 
@@ -100,31 +97,33 @@ final class PostRepository
     /**
      * Fetches all posts from a specified category.
      *
+     * This method filters the posts based on the given category. It includes posts
+     * that are within the specified hidden category but excludes posts that start with a dot.
+     *
      * @param string $category The category to filter posts by. 'misc' will also fetch posts that do not belong to any category.
      *
-     * @return PostCollection returns a collection of posts filtered by the specified category
+     * @return PostCollection returns a collection of posts filtered by the specified category.
      */
     public function fetchPostsByCategory(string $category): PostCollection
     {
         $posts = new PostCollection();
         foreach ($this->iterator as $file) {
             if ($file instanceof \SplFileInfo) {
-                $isHidden = $this->isHidden($file);
+                $post = Post::createFromFile($file);
                 $categorySlug = StringUtils::slugify($category);
 
-                if ($isHidden) {
-                    $directoryName = ltrim($file->getPathInfo()->getFilename(), '.');
-                    if ($categorySlug === StringUtils::slugify($directoryName)) {
-                        $post = Post::createFromFile($file);
-                        if (!$post->isDraft()) {
-                            $posts->add($post);
-                        }
-                    }
+                if ($post->isHidden($checkPath = false)) {
                     continue;
                 }
 
+                $directoryName = ltrim($file->getPathInfo()->getFilename(), '.');
+                if ($categorySlug === StringUtils::slugify($directoryName)) {
+                    if (!$post->isDraft()) {
+                        $posts->add($post);
+                    }
+                }
+
                 if (Validator::isValidCategoryPost($file, $category, $this->directory)) {
-                    $post = Post::createFromFile($file);
                     if (!$post->isDraft()) {
                         $posts->add($post);
                     }
@@ -268,28 +267,6 @@ final class PostRepository
             }
         }
         return null;
-    }
-
-    /**
-    * Determines if a file or directory is hidden.
-    * A file or directory is considered hidden if its name starts with a dot ('.').
-    *
-    * @param \SplFileInfo $file The file or directory to check.
-    * @return bool Returns true if the file or directory is hidden, false otherwise.
-    */
-    private function isHidden(\SplFileInfo $file): bool
-    {
-        $fullPath = $file->getRealPath();
-        $pathParts = explode(DIRECTORY_SEPARATOR, $fullPath);
-
-        foreach ($pathParts as $part) {
-            if (str_starts_with($part, '.')) {
-                return true;
-            }
-        }
-
-        $filename = $file->getFilename();
-        return str_starts_with($filename, '.');
     }
 
     /**
