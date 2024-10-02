@@ -117,13 +117,7 @@ final class PostRepository
                 }
 
                 $directoryName = ltrim($file->getPathInfo()->getFilename(), '.');
-                if ($categorySlug === StringUtils::slugify($directoryName)) {
-                    if (!$post->isDraft()) {
-                        $posts->add($post);
-                    }
-                }
-
-                if (Validator::isValidCategoryPost($file, $category, $this->directory)) {
+                if (($categorySlug === StringUtils::slugify($directoryName)) || Validator::isValidCategoryPost($file, $category, $this->directory)) {
                     if (!$post->isDraft()) {
                         $posts->add($post);
                     }
