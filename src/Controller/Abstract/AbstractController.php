@@ -26,12 +26,22 @@ abstract class AbstractController
         http_response_code(404);
 
         if (1 === random_int(1, 10)) {
-            echo "404 Cat Found\n\n  ／l、meow\n（ﾟ､ ｡ ７\n  l  ~ヽ\n  じしf_,)ノ\n";
+            echo <<<EOT
+404 Cat Found
+
+  ／l、meow
+（ﾟ､ ｡ ７
+  l  ~ヽ
+  じしf_,)ノ
+
+EOT;
 
             return;
         }
 
         echo "404 Not Found\n";
+
+        return;
     }
 
     /**

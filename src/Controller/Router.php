@@ -18,10 +18,168 @@ final class Router
     ) {}
 
     /**
+     * Handles URIs to perform redirection based on predefined rules.
+     *
+     * @param string $uri The requested URI.
+     *
+     * @return bool Returns true if a redirection has been made, false otherwise.
+     */
+    private function handleRedirectRoute(string $uri): bool
+    {
+        $scheme = $this->getScheme();
+        $host = $this->getHost();
+
+        // Normalize multiple slashes and redirect to a single slash version
+        if (preg_match('#^([^.]*?\/)\/+(.*)$#', $uri, $matches)) {
+            $normalizedPath = preg_replace('#/{2,}#', '/', "{$matches[1]}{$matches[2]}");
+            $this->redirect("{$scheme}://{$host}{$normalizedPath}");
+            return true;
+        }
+
+        // Remove trailing slash in .txt files and correct to full URL
+        if (preg_match('#^/(.+)\.txt/$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/{$matches[1]}.txt");
+            return true;
+        }
+
+        // Handle .txt extension for routing
+        if (preg_match('#^/(.+)\.txt$#', $uri, $matches)) {
+            $_GET['go'] = $matches[1];
+            return false;
+        }
+
+        // Ensure names that don't end in slash are redirected with a slash
+        if (preg_match('#^/([^/]+)$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/{$matches[1]}/");
+            return true;
+        }
+
+        // Year paths addition of trailing slash with full URL
+        if (preg_match('#^/(\d{4})$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/{$matches[1]}/");
+            return true;
+        }
+
+        // Ensure year/month paths end with slash with full URL
+        if (preg_match('#^/(\d{4})/(\d{2})$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/{$matches[1]}/{$matches[2]}/");
+            return true;
+        }
+
+        // Ensure year/month/day paths end with slash with full URL
+        if (preg_match('#^/(\d{4})/(\d{2})/(\d{2})$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/{$matches[1]}/{$matches[2]}/{$matches[3]}/");
+            return true;
+        }
+
+        // Ensure RSS category paths are canonical with full URL
+        if (preg_match('#^/rss/([\w-]+)$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/rss/{$matches[1]}/");
+            return true;
+        }
+
+        // Normalize latest path with trailing slash
+        if (preg_match('#^/latest$#', $uri)) {
+            $this->redirect("{$scheme}://{$host}/latest/");
+            return true;
+        }
+
+        // Normalize latest subpaths with trailing slash
+        if (preg_match('#^/latest/([^/]+)$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/latest/{$matches[1]}/");
+            return true;
+        }
+
+        // Normalize search paths with trailing slash
+        if (preg_match('#^/search/(.*[^/])$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/search/{$matches[1]}/");
+            return true;
+        }
+
+        // Handle "/search" path setting 'go' GET parameter
+        if (preg_match('#^/search/(.*)/$#', $uri, $matches)) {
+            $_GET['go'] = "search/{$matches[1]}";
+            return false;
+        }
+
+        // Normalize selected path with trailing slash
+        if (preg_match('#^/selected$#', $uri)) {
+            $this->redirect("{$scheme}://{$host}/selected/");
+            return true;
+        }
+
+        // Normalize draft paths with trailing slash
+        if (preg_match('#^/drafts/([^/]+)$#', $uri, $matches)) {
+            $this->redirect("{$scheme}://{$host}/drafts/{$matches[1]}/");
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Redirects to a specified URL with a 301 status and message.
+     *
+     * ..."Have you mooed today?"...
+     *
+     * @param string $url The URL to redirect to.
+     */
+    private function redirect(string $url): void
+    {
+        header("Location: $url", true, 301);
+
+        if (1 === random_int(1, 10)) {
+            echo <<<EOT
+  _____________________
+< 301 Mooed Permanently >
+  ---------------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\        )\/\
+                 ||----w |
+                 ||     ||
+
+EOT;
+
+            return;
+        } else {
+            echo "301 Moved Permanently";
+
+            return;
+        }
+    }
+
+    /**
+     * Retrieves the current scheme (http or https) of the request.
+     *
+     * @return string The current scheme.
+     */
+    private function getScheme(): string
+    {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+    }
+
+    /**
+     * Retrieves the current host of the request.
+     *
+     * @return string The host.
+     */
+    private function getHost(): string
+    {
+        return $_SERVER['HTTP_HOST'];
+    }
+
+    /**
      * Routes the request based on server parameters using a predefined set of routes.
      */
     public function route(): void
     {
+        $uri = $_SERVER['REQUEST_URI'];
+
+        if ($this->handleRedirectRoute($uri)) {
+            return;
+        }
+
         if ($this->isFaviconRequest($_SERVER['REQUEST_URI'])) {
             $this->handleFaviconRequest();
             return;
