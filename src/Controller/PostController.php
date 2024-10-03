@@ -13,6 +13,7 @@ use Weblog\Model\PostCollection;
 use Weblog\Utils\ContentFormatter;
 use Weblog\Utils\StringUtils;
 use Weblog\Utils\TextUtils;
+use Weblog\Utils\HttpUtils;
 
 final class PostController extends AbstractController
 {
@@ -73,9 +74,9 @@ final class PostController extends AbstractController
         if (isset(Config::get()->rewrites[rtrim($postSlug, '/')])) {
             $redirectUrl = Config::get()->rewrites[$postSlug];
             if (str_starts_with($redirectUrl, 'http://') || str_starts_with($redirectUrl, 'https://')) {
-                header('Location: '.$redirectUrl, true, 301);
+                HttpUtils::redirect($redirectUrl, 301);
             } else {
-                header('Location: '.Config::get()->url.'/'.$redirectUrl.'/', true, 301);
+                HttpUtils::redirect(Config::get()->url . '/' . $redirectUrl . '/', 301);
             }
 
             exit;
