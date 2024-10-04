@@ -36,7 +36,7 @@ final class PostController extends AbstractController
      * @param bool           $showUrls      indicates if we should append URLs to each post
      * @param bool           $isPostNewline indicates if we should display additional newlines between posts (could be refactored)
      */
-    public function renderPosts(?PostCollection $posts = null, string $showUrls = 'Full', bool $isPostNewline = false): void
+    public function renderPosts(?PostCollection $posts = null, string $showUrls = 'Off', bool $isPostNewline = false): void
     {
         if (null === $posts) {
             $posts = $this->postRepository->fetchAllPosts();
@@ -90,7 +90,7 @@ final class PostController extends AbstractController
      *
      * @param bool $showUrls indicates if we should append URLs to each post
      */
-    public function renderPost(Post $post, string $showUrls = 'Full'): void
+    public function renderPost(Post $post, string $showUrls = 'Off'): void
     {
         $title = ltrim($post->getTitle(), '.');
         $category = ltrim($post->getCategory(), '.');
