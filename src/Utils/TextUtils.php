@@ -37,12 +37,6 @@ final class TextUtils
      */
     public static function formatQuote(string $text): string
     {
-        $text = preg_replace(
-            '/\x{202F}/u',
-            '\x{00A0}',
-            $text
-        );
-
         $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
 
         $lines = explode("\n", $text);
@@ -152,12 +146,6 @@ final class TextUtils
      */
     public static function formatQuoteText(string $text): string
     {
-        $text = preg_replace(
-            '/\x{202F}/u',
-            '\x{00A0}',
-            $text
-        );
-
         $lineWidth = Config::get()->lineWidth;
         $prefix = str_repeat(' ', Config::get()->prefixLength) . '|  ';
         $lines = explode("\n", wordwrap(trim($text), $lineWidth - Config::get()->prefixLength - 4));
@@ -185,12 +173,6 @@ final class TextUtils
      */
     public static function formatList(string $text): string
     {
-        $text = preg_replace(
-            '/\x{202F}/u',
-            '\x{00A0}',
-            $text
-        );
-
         $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
 
         $lines = explode("\n", $text);
@@ -276,12 +258,6 @@ final class TextUtils
      */
     public static function formatListItem(string $item, string $listType, int $index = 1, int $totalItems = 10, bool $isContinuation = false): string
     {
-        $item = preg_replace(
-            '/\x{202F}/u',
-            '\x{00A0}',
-            $item
-        );
-
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
