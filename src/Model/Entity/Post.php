@@ -85,6 +85,7 @@ final class Post
         $date = $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         $isDraft = strpos($file->getPathname(), '/drafts/') !== false;
         $isHidden = str_starts_with(basename($file->getFilename(), '.'), '.');
+
         return new self(
             title: basename($file->getFilename(), '.txt'),
             path: $file->getPathname(),

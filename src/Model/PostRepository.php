@@ -10,7 +10,7 @@ use Weblog\Utils\StringUtils;
 
 final class PostRepository
 {
-    private \RecursiveIteratorIterator $iterator;
+    private \Iterator $iterator;
 
     /**
      * Constructor for PostRepository.
@@ -281,6 +281,10 @@ final class PostRepository
     private function loadIterator(): void
     {
         $directoryIterator = new \RecursiveDirectoryIterator($this->directory, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $this->iterator = new \RecursiveIteratorIterator($directoryIterator);
+        $recursiveIterator = new \RecursiveIteratorIterator($directoryIterator);
+
+        $this->iterator = new \CallbackFilterIterator($recursiveIterator, function ($file) {
+            return $file->isFile() && $file->getExtension() === 'txt';
+        });
     }
 }
