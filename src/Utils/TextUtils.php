@@ -37,6 +37,12 @@ final class TextUtils
      */
     public static function formatQuote(string $text): string
     {
+        $text = preg_replace(
+            '/\x{202F}/u',
+            '\x{00A0}',
+            $text
+        );
+
         $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
 
         $lines = explode("\n", $text);
@@ -123,6 +129,13 @@ final class TextUtils
             $formattedText .= $quoteContent;
         }
 
+        $formattedText = preg_replace(
+            '/[\x{202F}\x{00A0}]/u',
+            ' ',
+            $formattedText
+        );
+
+
         if ($isSingleQuote) {
             return "\n" . rtrim($formattedText) . "\n";
         } else {
@@ -139,6 +152,12 @@ final class TextUtils
      */
     public static function formatQuoteText(string $text): string
     {
+        $text = preg_replace(
+            '/\x{202F}/u',
+            '\x{00A0}',
+            $text
+        );
+
         $lineWidth = Config::get()->lineWidth;
         $prefix = str_repeat(' ', Config::get()->prefixLength) . '|  ';
         $lines = explode("\n", wordwrap(trim($text), $lineWidth - Config::get()->prefixLength - 4));
@@ -147,6 +166,12 @@ final class TextUtils
         foreach ($lines as $line) {
             $formattedText .= $prefix . $line . "\n";
         }
+
+        $formattedText = preg_replace(
+            '/[\x{202F}\x{00A0}]/u',
+            ' ',
+            $formattedText
+        );
 
         return rtrim($formattedText);
     }
@@ -160,6 +185,12 @@ final class TextUtils
      */
     public static function formatList(string $text): string
     {
+        $text = preg_replace(
+            '/\x{202F}/u',
+            '\x{00A0}',
+            $text
+        );
+
         $text = preg_replace('/([.!?]|\.{3})(["\'])?(\s)/', '$1$2 $3', $text);
 
         $lines = explode("\n", $text);
@@ -225,6 +256,12 @@ final class TextUtils
             $formattedText .= $listContent;
         }
 
+        $formattedText = preg_replace(
+            '/[\x{202F}\x{00A0}]/u',
+            ' ',
+            $formattedText
+        );
+
         return rtrim($formattedText);
     }
 
@@ -239,6 +276,12 @@ final class TextUtils
      */
     public static function formatListItem(string $item, string $listType, int $index = 1, int $totalItems = 10, bool $isContinuation = false): string
     {
+        $item = preg_replace(
+            '/\x{202F}/u',
+            '\x{00A0}',
+            $item
+        );
+
         $lineWidth = Config::get()->lineWidth;
         $prefixLength = Config::get()->prefixLength;
         $linePrefix = str_repeat(' ', $prefixLength);
@@ -273,6 +316,12 @@ final class TextUtils
                 $line .= $word . ' ';
             }
         }
+
+        $result = preg_replace(
+            '/[\x{202F}\x{00A0}]/u',
+            ' ',
+            $result
+        );
 
         return $result . rtrim($line);
     }
@@ -326,6 +375,12 @@ final class TextUtils
      */
     public static function formatParagraph(string $text): string
     {
+        $text = preg_replace(
+            '/\x{202F}/u',
+            '\x{00A0}',
+            $text
+        );
+
         if (in_array($text, ['***', '* * *'])) {
             return self::formatAsterism($text);
         }
@@ -340,7 +395,20 @@ final class TextUtils
 
         $result = '';
 
-        $tokens = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $breakingSpaces = '[' .
+            '\x{0009}-\x{000D}' .
+            '\x{0020}' .
+            '\x{1680}' .
+            '\x{180E}' .
+            '\x{2000}-\x{200A}' .
+            '\x{2028}' .
+            '\x{2029}' .
+            '\x{205F}' .
+            '\x{3000}' .
+        ']+';
+
+        $tokens = preg_split('/(' . $breakingSpaces . ')/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+
         $line = $linePrefix;
 
         foreach ($tokens as $token) {
@@ -351,10 +419,6 @@ final class TextUtils
             $tokenLength = mb_strlen($token);
 
             if (mb_strlen($line) + $tokenLength > $lineWidth) {
-                if (trim($token) === '') {
-                    continue;
-                }
-
                 if (strpos($token, '-') !== false && mb_strlen(trim($token)) <= $lineWidth - mb_strlen($linePrefix)) {
                     $hyphenPos = mb_strpos($token, '-');
                     $firstPart = mb_substr($token, 0, $hyphenPos + 1);
@@ -395,6 +459,12 @@ final class TextUtils
         }
 
         $result .= rtrim($line);
+
+        $result = preg_replace(
+            '/[\x{202F}\x{00A0}]/u',
+            ' ',
+            $result
+        );
 
         return $result;
     }
