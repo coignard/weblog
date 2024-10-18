@@ -340,42 +340,61 @@ final class TextUtils
 
         $result = '';
 
-        $words = explode(' ', $text);
+        $tokens = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         $line = $linePrefix;
 
-        foreach ($words as $word) {
-            if (strpos($word, '-') !== false) {
-                $hyphenParts = explode('-', $word);
-                foreach ($hyphenParts as $index => $part) {
-                    if ($index > 0) {
-                        $part = '-' . $part;
-                    }
-                    if (mb_strlen($line . $part) > $lineWidth) {
-                        if ($index > 0) {
-                            $result .= rtrim($line) . "-\n";
-                            $line = $linePrefix . ltrim($part, '-');
-                        } else {
-                            $result .= rtrim($line) . "\n";
-                            $line = $linePrefix . $part;
-                        }
+        foreach ($tokens as $token) {
+            if ($token === '') {
+                continue;
+            }
+
+            $tokenLength = mb_strlen($token);
+
+            if (mb_strlen($line) + $tokenLength > $lineWidth) {
+                if (trim($token) === '') {
+                    continue;
+                }
+
+                if (strpos($token, '-') !== false && mb_strlen(trim($token)) <= $lineWidth - mb_strlen($linePrefix)) {
+                    $hyphenPos = mb_strpos($token, '-');
+                    $firstPart = mb_substr($token, 0, $hyphenPos + 1);
+                    $remainingPart = mb_substr($token, $hyphenPos + 1);
+
+                    if (mb_strlen($line) + mb_strlen($firstPart) <= $lineWidth) {
+                        $line .= $firstPart;
+                        $result .= rtrim($line) . "\n";
+                        $line = $linePrefix . $remainingPart;
                     } else {
-                        $line .= $part;
+                        $result .= rtrim($line) . "\n";
+                        $line = $linePrefix . $token;
                     }
-                }
-                $line .= ' ';
-            } else {
-                if (mb_strlen($line . $word) > $lineWidth) {
+                } elseif (mb_strlen(trim($token)) > $lineWidth - mb_strlen($linePrefix)) {
                     $result .= rtrim($line) . "\n";
-                    $line = $linePrefix . $word . ' ';
+                    $line = $linePrefix;
+
+                    $token = ltrim($token);
+                    while (mb_strlen($token) > 0) {
+                        $spaceLeft = $lineWidth - mb_strlen($line);
+                        $part = mb_substr($token, 0, $spaceLeft);
+                        $token = mb_substr($token, $spaceLeft);
+
+                        $line .= $part;
+
+                        if (mb_strlen($token) > 0) {
+                            $result .= rtrim($line) . "\n";
+                            $line = $linePrefix;
+                        }
+                    }
                 } else {
-                    $line .= $word . ' ';
+                    $result .= rtrim($line) . "\n";
+                    $line = $linePrefix . ltrim($token);
                 }
+            } else {
+                $line .= $token;
             }
         }
 
         $result .= rtrim($line);
-
-        $result = preg_replace('/\.\s*\n\s+/', ".\n" . $linePrefix, $result);
 
         return $result;
     }
