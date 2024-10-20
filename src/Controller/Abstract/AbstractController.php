@@ -102,5 +102,6 @@ EOT;
     public function setHeaders(ContentType $contentType): void
     {
         header(sprintf('Content-Type: %s; charset=utf-8', $contentType->value));
+        header(sprintf('X-Source-Code: %s', Config::get()->sourceCodeUrl));
     }
 }

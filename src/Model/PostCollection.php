@@ -152,7 +152,7 @@ final class PostCollection implements \IteratorAggregate, \Countable
         $index = array_search($post, $reversedPosts, true);
 
         if (false === $index) {
-            throw new \InvalidArgumentException('Post not found in collection');
+            throw new \InvalidArgumentException('Post not found in collection.');
         }
 
         $index = (int) $index;

@@ -31,7 +31,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.18.0';
+    private const VERSION = '1.18.1';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -65,7 +65,8 @@ final class Config
         public bool $enableLogging = false,
         public string $logFilePath = '/var/log/weblog/access.log',
         public array $logFilterWords = [],
-        public array $logFilterAgents = []
+        public array $logFilterAgents = [],
+        public string $sourceCodeUrl = 'https://github.com/coignard/weblog',
     ) {
         $this->loadConfig();
     }
@@ -124,6 +125,9 @@ final class Config
         $this->logFilePath = $this->getString('log_file_path') ?? '/var/log/weblog/access.log';
         $this->logFilterWords = array_map('trim', explode(',', $this->getString('log_filter_words') ?? ''));
         $this->logFilterAgents = array_map('trim', explode(',', $this->getString('log_filter_agents') ?? ''));
+        $this->sourceCodeUrl = ($this->getString('source_code_url') ?? '') !== ''
+            ? $this->getString('source_code_url')
+            : throw new \RuntimeException('To comply with the GNU Affero General Public License (AGPL), please provide the source code URL in the config.ini.');
 
         $this->rewrites = $config['Rewrites'] ?? $this->rewrites;
 
