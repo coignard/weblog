@@ -66,7 +66,7 @@ final class Config
         public string $logFilePath = '/var/log/weblog/access.log',
         public array $logFilterWords = [],
         public array $logFilterAgents = [],
-        public string $sourceCodeUrl = 'https://github.com/coignard/weblog',
+        public string $sourceCodeUrl = 'https://github.com/coignard/weblog'
     ) {
         $this->loadConfig();
     }
