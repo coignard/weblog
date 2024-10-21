@@ -49,6 +49,11 @@ final class Router
         $scheme = HttpUtils::getScheme();
         $host = HttpUtils::getHost();
 
+        // Do not redirect '/sitemap.xml'
+        if ($uri === '/sitemap.xml') {
+            return false;
+        }
+
         // Normalize multiple slashes and redirect to a single slash version
         if (preg_match('#^([^.]*?\/)\/+(.*)$#', $uri, $matches)) {
             $normalizedPath = preg_replace('#/{2,}#', '/', "{$matches[1]}{$matches[2]}");
