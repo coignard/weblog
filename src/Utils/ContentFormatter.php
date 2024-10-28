@@ -118,7 +118,7 @@ final class ContentFormatter
             }
 
             if ($index > 0) {
-                $header .= "\n" . str_repeat(' ', $titlePaddingLeft + $categoryWidth) . $titleLine . str_repeat(' ', $titlePaddingRight + $dateWidth);
+                $header .= "\n" . str_repeat(' ', $titlePaddingLeft + $categoryWidth) . $titleLine;
             } else {
                 if ($includeCategory) {
                     $header .= str_pad($category, $categoryWidth);
