@@ -117,22 +117,6 @@ final class StringUtils
     /**
      * Cleans a slug from extensions.
      *
-     * @return string the formatted string
-     */
-    public static function formatAboutText(string $text): string
-    {
-        $text = preg_replace('/\.(\s)/', '. $1', rtrim($text));
-
-        if (null === $text) {
-            throw new \RuntimeException('Failed to format text.');
-        }
-
-        return str_replace('\\n', "\n", $text);
-    }
-
-    /**
-     * Cleans a slug from extensions.
-     *
      * @param string $slug the string to sanitize
      *
      * @return string the sanitized string

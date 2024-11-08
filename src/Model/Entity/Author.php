@@ -24,8 +24,6 @@ declare(strict_types=1);
 namespace Weblog\Model\Entity;
 
 use Weblog\Config;
-use Weblog\Utils\StringUtils;
-use Weblog\Model\Enum\Beautify;
 
 final class Author
 {
@@ -57,11 +55,6 @@ final class Author
     public function getAbout(): string
     {
         return $this->aboutText;
-    }
-
-    public function setAbout(string $aboutText): void
-    {
-        $this->aboutText = StringUtils::formatAboutText($aboutText);
     }
 
     public function getInformation(): string

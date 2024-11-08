@@ -31,7 +31,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.18.3';
+    private const VERSION = '1.18.4';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -145,14 +145,6 @@ final class Config
         $this->showDate = false;
         $this->showCopyright = false;
         $this->showUrls = ShowUrls::OFF;
-
-        if (isset($this->config['about_text_alt'])) {
-            $this->author->setAbout(
-                StringUtils::sanitizeText(
-                    $this->getString('about_text_alt') ?? $this->author->getAbout()
-                )
-            );
-        }
     }
 
     private function setAuthor(): void
@@ -160,7 +152,11 @@ final class Config
         $name = $this->getString('author_name') ?? $this->author->getName();
         $email = $this->getString('author_email') ?? $this->author->getEmail();
         $location = $this->getString('author_location') ?? $this->author->getLocation();
-        $aboutText = StringUtils::sanitizeText($this->getString('about_text') ?? $this->author->getAbout());
+
+        $aboutText = Validator::isMobileDevice() && isset($this->config['about_text_alt'])
+            ? $this->getString('about_text_alt')
+            : $this->getString('about_text');
+        $aboutText = StringUtils::sanitizeText($aboutText ?? $this->author->getAbout());
 
         $this->author = new Author(
             name: $name,
