@@ -1,0 +1,11 @@
+Credits
+=======
+
+René Coignard <contact@renecoignard.com>
+ - Original author and maintainer of Weblog.
+
+nicolus
+ - Added support for configuration via .ini file.
+
+vladsolntsev
+ - Performed a comprehensive project refactoring.
