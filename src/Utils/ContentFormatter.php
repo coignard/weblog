@@ -64,7 +64,11 @@ final class ContentFormatter
             } elseif (preg_match('/^(\d+)\.\s/', $trimmedParagraph, $matches) || preg_match('/^\* /', $trimmedParagraph)) {
                 $formattedContent .= TextUtils::formatList($paragraph) . "\n\n";
             } else {
-                $formattedContent .= TextUtils::formatParagraph($trimmedParagraph) . "\n\n";
+                $lines = explode("\n", $trimmedParagraph);
+                foreach ($lines as $line) {
+                    $formattedContent .= TextUtils::formatParagraph(trim($line)) . "\n";
+                }
+                $formattedContent .= "\n";
             }
         }
 
