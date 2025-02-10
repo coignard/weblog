@@ -188,14 +188,27 @@ final class FeedGenerator
      */
     private static function formatHyperlinks(string $text): string
     {
-        $text = preg_replace_callback('/^> (https?:\/\/[^\s]+)/m', function ($matches) {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443)
+            ? 'https://'
+            : 'http://';
+
+        $text = preg_replace_callback('/^> ([^\s]+\.[^\s]+)/m', function ($matches) {
             return $matches[1];
         }, $text);
 
-        $pattern = '/(https?:\/\/[^\s]+)/';
-        $replacement = '<a href="$1">$1</a>';
+        return preg_replace_callback(
+            '/(?<![\w.-])((?:https?:\/\/)?[^\s]+\.[a-zA-Z][^\s]*)(?![\w.-])/',
+            function($matches) use ($protocol) {
+                $match = $matches[1];
 
-        return preg_replace($pattern, $replacement, $text);
+                if (preg_match('/^https?:\/\//i', $match)) {
+                    return '<a href="' . $match . '">' . $match . '</a>';
+                }
+
+                return '<a href="' . $protocol . $match . '">' . $match . '</a>';
+            },
+            $text
+        );
     }
 
     /**
