@@ -164,8 +164,9 @@ final class FeedGenerator
             }
 
             self::appendXmlElement($item, 'title', $title);
-            self::appendXmlElement($item, 'guid', Config::get()->url.'/'.$post->getSlug().'/', ['isPermaLink' => 'true']);
-            self::appendXmlElement($item, 'link', Config::get()->url.'/'.$post->getSlug().'/');
+            foreach (['guid', 'link'] as $tag) {
+                self::appendXmlElement($item, $tag, Config::get()->url.'/'.$post->getSlug().'/');
+            }
             self::appendXmlElement($item, 'pubDate', $post->getFormattedDate(DATE_RSS));
             self::appendXmlElement($item, 'category', $post->getCategory());
 
