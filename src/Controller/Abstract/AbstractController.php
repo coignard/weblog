@@ -27,6 +27,7 @@ use Weblog\Config;
 use Weblog\Model\Enum\ContentType;
 use Weblog\Model\PostRepository;
 use Weblog\Utils\TextUtils;
+use Weblog\Utils\Validator;
 
 abstract class AbstractController
 {
@@ -83,11 +84,17 @@ EOT;
             $copyrightText = sprintf('Copyright (c) %s %s', $year, Config::get()->author->getInformation());
         }
 
+        if (Validator::isMobileDevice()) {
+            $copyrightText = sprintf('(c) %s', Config::get()->author->getEmail());
+        }
+
         echo TextUtils::centerText($copyrightText);
 
         if (Config::get()->showPoweredBy) {
             echo "\n\n";
-            $poweredByText = 'Powered by Weblog v'.Config::get()->version;
+            $poweredByText = Validator::isMobileDevice() ?
+                'Powered by Weblog' :
+                'Powered by Weblog v'.Config::get()->version;
             echo TextUtils::centerText($poweredByText);
         }
 

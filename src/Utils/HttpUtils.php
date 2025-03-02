@@ -63,10 +63,11 @@ final class HttpUtils
                  ||----w |
                  ||     ||
 
+$url
 EOT;
 
         } else {
-            echo "$statusCode $message";
+            echo "$statusCode $message\n\n$url";
         }
 
         exit;

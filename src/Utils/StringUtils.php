@@ -194,24 +194,68 @@ final class StringUtils
 
         switch (\count($parts)) {
             case 1:
+                if (!is_numeric($parts[0]) || strlen($parts[0]) !== 4 || $parts[0] < 1900 || $parts[0] > 2100) {
+                    return [null, ''];
+                }
                 $format = 'Y';
                 $precision = 'year';
                 break;
 
             case 2:
+                if (!is_numeric($parts[0]) || strlen($parts[0]) !== 4 || $parts[0] < 1900 || $parts[0] > 2100) {
+                    return [null, ''];
+                }
+                if (!is_numeric($parts[1]) || $parts[1] < 1 || $parts[1] > 12) {
+                    return [null, ''];
+                }
                 $format = 'Y/m';
                 $precision = 'month';
                 break;
 
             case 3:
+                if (!is_numeric($parts[0]) || strlen($parts[0]) !== 4 || $parts[0] < 1900 || $parts[0] > 2100) {
+                    return [null, ''];
+                }
+
+                $year = (int)$parts[0];
+                $month = (int)$parts[1];
+
+                if ($month < 1 || $month > 12) {
+                    return [null, ''];
+                }
+
+                $day = (int)$parts[2];
+
+                if (function_exists('cal_days_in_month')) {
+                    $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                } else {
+                    $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
+                }
+
+                if ($day < 1 || $day > $daysInMonth) {
+                    return [null, ''];
+                }
+
                 $format = 'Y/m/d';
                 $precision = 'day';
                 break;
+
+            default:
+                return [null, ''];
         }
 
         $date = \DateTimeImmutable::createFromFormat($format, $datePath);
 
-        return [false === $date ? null : $date, $precision];
+        if ($date === false) {
+            return [null, ''];
+        }
+
+        $formattedDate = $date->format($format);
+        if ($formattedDate !== $datePath) {
+            return [null, ''];
+        }
+
+        return [$date, $precision];
     }
 
     /**

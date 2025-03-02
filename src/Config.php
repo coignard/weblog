@@ -31,7 +31,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.18.6';
+    private const VERSION = '1.18.7';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -143,7 +143,6 @@ final class Config
         $this->lineWidth = (int) ($this->lineWidth / 2) + 6;
         $this->showCategory = false;
         $this->showDate = false;
-        $this->showCopyright = false;
         $this->showUrls = ShowUrls::OFF;
     }
 
