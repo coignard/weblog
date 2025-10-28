@@ -49,8 +49,8 @@ final class Router
         $scheme = HttpUtils::getScheme();
         $host = HttpUtils::getHost();
 
-        // Do not redirect '/sitemap.xml'
-        if ($uri === '/sitemap.xml') {
+        // Do not redirect '/sitemap.xml' or '/rss.xml'
+        if ($uri === '/sitemap.xml' || $uri === '/rss.xml') {
             return false;
         }
 
@@ -224,27 +224,71 @@ final class Router
     }
 
     /**
-     * Sanitizes the route key parameter.
-     *
-     * @param string $routeKey The route key to sanitize.
-     * @return string The sanitized route key.
-     */
+    * Sanitizes the route key parameter by removing diacritics and invalid characters.
+    *
+    * @param string $routeKey The route key to sanitize.
+    * @return string The sanitized route key, or original string if sanitization fails safely.
+    */
     private function sanitizeRouteKey(string $routeKey): string
     {
-        $normalized = \Normalizer::normalize($routeKey, \Normalizer::FORM_D);
-        $sanitized = preg_replace('/[\p{Mn}\p{Me}\p{Cf}]/u', '', $normalized);
-        return $sanitized;
+        if (preg_match('/^[a-zA-Z0-9\/_-]+$/', $routeKey)) {
+            return $routeKey;
+        }
+
+        try {
+            if (!mb_check_encoding($routeKey, 'UTF-8')) {
+                error_log("Route key contains invalid UTF-8: " . bin2hex($routeKey));
+                return $routeKey;
+            }
+
+            $normalized = \Normalizer::normalize($routeKey, \Normalizer::FORM_D);
+
+            if ($normalized === false) {
+                error_log("Unicode normalization failed for route key: " . bin2hex($routeKey));
+                return $routeKey;
+            }
+
+            $sanitized = preg_replace('/[\p{Mn}\p{Me}\p{Cf}]/u', '', $normalized);
+
+            if ($sanitized === null) {
+                error_log("PCRE error during route sanitization: " . preg_last_error());
+                return $routeKey;
+            }
+
+            return $sanitized;
+
+        } catch (\Throwable $e) {
+            error_log("Unexpected error in route sanitization: " . $e->getMessage());
+            return $routeKey;
+        }
     }
 
     /**
-     * Sanitizes a slug parameter.
-     *
-     * @param string $slug The slug to sanitize.
-     * @return string The sanitized slug.
-     */
+    * Sanitizes a slug parameter by removing invalid characters.
+    *
+    * @param string $slug The slug to sanitize.
+    * @return string The sanitized slug, or original string if sanitization fails.
+    */
     private function sanitizeSlug(string $slug): string
     {
-        return preg_replace('/[^a-zA-Z0-9_-]/', '', $slug);
+        if (preg_match('/^[a-zA-Z0-9_-]+$/', $slug)) {
+            return $slug;
+        }
+
+        try {
+            $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $slug);
+
+            if ($sanitized === null) {
+                error_log("PCRE error during slug sanitization: " . preg_last_error() . " for input: " . $slug);
+                return $slug;
+            }
+
+            return $sanitized;
+
+        } catch (\Throwable $e) {
+            error_log("Unexpected error in slug sanitization: " . $e->getMessage() . " for input: " . $slug);
+            return $slug;
+        }
     }
 
     /**

@@ -67,7 +67,7 @@ final class FeedController extends AbstractController
 
         $dom->loadXML($rss->asXML());
 
-        $this->setHeaders(ContentType::XML);
+        $this->setHeaders(ContentType::RSS);
 
         echo $dom->saveXML();
     }
@@ -91,7 +91,7 @@ final class FeedController extends AbstractController
 
         $dom->loadXML($rss->asXML());
 
-        $this->setHeaders(ContentType::XML);
+        $this->setHeaders(ContentType::RSS);
 
         echo $dom->saveXML();
     }

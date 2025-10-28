@@ -30,4 +30,5 @@ enum ContentType: string
 {
     case TEXT = 'text/plain';
     case XML = 'application/xml';
+    case RSS = 'application/rss+xml';
 }

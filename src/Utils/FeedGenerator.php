@@ -82,9 +82,9 @@ final class FeedGenerator
         $lastmodDate = $posts->getMostRecentDate() ?? new \DateTimeImmutable();
         $titleSuffix = '' !== $category ? ' — '.ucfirst($category) : $category;
 
-        $href = Config::get()->url . '/rss/';
+        $href = Config::get()->url . $_SERVER['REQUEST_URI'];
         if ($category !== '') {
-            $href .= StringUtils::slugify($category) . '/';
+            $href = Config::get()->url . '/rss/' . StringUtils::slugify($category) . '/';
         }
 
         self::appendXmlElement($channel, 'title', Config::get()->author->getName().$titleSuffix);

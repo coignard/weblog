@@ -31,7 +31,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.18.9';
+    private const VERSION = '1.19.0';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
@@ -66,7 +66,7 @@ final class Config
         public string $logFilePath = '/var/log/weblog/access.log',
         public array $logFilterWords = [],
         public array $logFilterAgents = [],
-        public string $sourceCodeUrl = 'https://github.com/coignard/weblog'
+        public string $sourceCodeUrl = 'https://github.com/coignard/weblog',
     ) {
         $this->loadConfig();
     }
@@ -104,7 +104,22 @@ final class Config
 
         $this->setAuthor();
 
-        $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== $_SERVER['HTTPS'] || 443 === $_SERVER['SERVER_PORT']) ? 'https://' : 'http://';
+        $protocol = 'http://';
+
+        if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
+            $protocol = 'https://';
+        }
+
+        elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            $protocol = 'https://';
+        }
+
+        elseif (!empty($_SERVER['HTTP_CF_VISITOR'])) {
+            $visitorData = json_decode($_SERVER['HTTP_CF_VISITOR']);
+            if (isset($visitorData->scheme) && $visitorData->scheme === 'https') {
+                $protocol = 'https://';
+            }
+        }
 
         $this->lineWidth = $this->getInt('line_width') ?? $this->lineWidth;
         $this->prefixLength = $this->getInt('prefix_length') ?? $this->prefixLength;
