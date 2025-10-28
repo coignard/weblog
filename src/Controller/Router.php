@@ -224,11 +224,11 @@ final class Router
     }
 
     /**
-    * Sanitizes the route key parameter by removing diacritics and invalid characters.
-    *
-    * @param string $routeKey The route key to sanitize.
-    * @return string The sanitized route key, or original string if sanitization fails safely.
-    */
+     * Sanitizes the route key parameter by removing diacritics and invalid characters.
+     *
+     * @param string $routeKey The route key to sanitize.
+     * @return string The sanitized route key, or original string if sanitization fails safely.
+     */
     private function sanitizeRouteKey(string $routeKey): string
     {
         if (preg_match('/^[a-zA-Z0-9\/_-]+$/', $routeKey)) {
@@ -264,11 +264,11 @@ final class Router
     }
 
     /**
-    * Sanitizes a slug parameter by removing invalid characters.
-    *
-    * @param string $slug The slug to sanitize.
-    * @return string The sanitized slug, or original string if sanitization fails.
-    */
+     * Sanitizes a slug parameter by removing invalid characters.
+     *
+     * @param string $slug The slug to sanitize.
+     * @return string The sanitized slug, or original string if sanitization fails.
+     */
     private function sanitizeSlug(string $slug): string
     {
         if (preg_match('/^[a-zA-Z0-9_-]+$/', $slug)) {
