@@ -31,7 +31,7 @@ use Weblog\Utils\Validator;
 
 final class Config
 {
-    private const VERSION = '1.19.0';
+    private const VERSION = '1.19.1';
     private const CONFIG_PATH = __DIR__.'/../config.ini';
 
     /**
