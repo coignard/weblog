@@ -3,7 +3,7 @@
 /**
  * This file is part of the Weblog.
  *
- * Copyright (c) 2024-2025  René Coignard <contact@renecoignard.com>
+ * Copyright (c) 2024-2026  René Coignard <contact@renecoignard.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -80,7 +80,17 @@ EOT;
      */
     public static function getScheme(): string
     {
-        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http";
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+            return $_SERVER['HTTP_X_FORWARDED_PROTO'];
+        }
+        if (!empty($_SERVER['HTTP_CF_VISITOR'])) {
+            $visitor = json_decode($_SERVER['HTTP_CF_VISITOR']);
+            if (isset($visitor->scheme)) {
+                return $visitor->scheme;
+            }
+        }
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'
+            || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
     }
 
     /**
