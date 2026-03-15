@@ -1,0 +1,19 @@
+name: Mirror to Codeberg
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: yesolutions/mirror-action@master
+        with:
+          REMOTE: 'https://codeberg.org/coignard/weblog.git'
+          GIT_USERNAME: coignard
+          GIT_PASSWORD: ${{ secrets.CODEBERG_TOKEN }}
